@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Requisição GET</title>
+  </head>
+  <body>
+    <h1>Requisição GET</h1>
+    <button onclick="fazerRequisicao()">Fazer Requisição</button>
+    <br><br>
+    <label id="resposta"></label>
+    
+    <script>
+      function fazerRequisicao() {
+        const url = "http://192.168.100.5:7575/stage-view/text-aux-control.json?html_type=1&selected_index=-1&css_hash=0";
+        
+        fetch(url)
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById("resposta").innerHTML = data;
+          })
+          .catch(error => {
+            console.error('Erro:', error);
+          });
+      }
+    </script>
+  </body>
+</html>
