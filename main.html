@@ -1,28 +1,32 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Requisição GET</title>
-  </head>
-  <body>
-    <h1>Requisição GET</h1>
-    <button onclick="fazerRequisicao()">Fazer Requisição</button>
-    <br><br>
-    <label id="resposta"></label>
-    
-    <script>
-      function fazerRequisicao() {
-        const url = "http://192.168.100.5:7575/stage-view/text-aux-control.json?html_type=1&selected_index=-1&css_hash=0";
-        
-        fetch(url)
-          .then(response => response.text())
-          .then(data => {
-            document.getElementById("resposta").innerHTML = data;
-          })
-          .catch(error => {
-            console.error('Erro:', error);
-          });
-      }
-    </script>
-  </body>
+<html lang='pt-br'>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Holyrics</title>
+  <link rel='stylesheet' type='text/css' href='stage_aux-1.0.0.css'>
+  <link rel='stylesheet' type='text/css' href='custom-css-aux-control.css'>
+  <script src='jquery-1.8.3.js'></script>
+  <script src='stage_aux-1.0.2.js'></script>
+  <script src='stage_aux_utils-1.0.0.js'></script>
+  <script src="control_slide.js"></script>
+</head>
+
+<body onload="init()" onkeydown='textAreaKeyPressed(event);'>
+   <div id='content'>
+
+  </div>
+
+  <div id="controls">
+    <button class="control-btn left" onclick="preview_slide()"></button>
+    <button class="control-btn right" onclick="next_slide()"></button>
+  </div>
+
+  <script type='text/javascript'>
+    htmlType = 1;
+    cssHash = '0';
+  </script>
+</body>
+
 </html>
