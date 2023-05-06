@@ -11,10 +11,11 @@
   <script src='stage_aux-1.0.2.js'></script>
   <script src='stage_aux_utils-1.0.0.js'></script>
   <script src="control_slide.js"></script>
+  <script src="https://cdn.rawgit.com/richtr/NoSleep.js/v0.7.1/dist/NoSleep.min.js"></script>
 </head>
 
 <body onload="init()" onkeydown='textAreaKeyPressed(event);'>
-   <div id='content'>
+  <div id='content'>
 
   </div>
 
@@ -24,6 +25,13 @@
   </div>
 
   <script type='text/javascript'>
+    var noSleep = new NoSleep();
+
+    document.addEventListener('touchstart', function enableNoSleep() {
+      document.removeEventListener('click', enableNoSleep, false);
+      noSleep.enable();
+    }, false);
+    
     htmlType = 1;
     cssHash = '0';
   </script>

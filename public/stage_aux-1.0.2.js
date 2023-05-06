@@ -5,12 +5,14 @@ var count_delay = 0;
 
 var error_count = 0;
 
-var items = [];
+items = [];
 var selected_index = -1;
 var selected_index_changed = -1;
 var current_json;
 
 var cssHash = "0";
+
+let timeoutId;
 
 function init() {
     update();
@@ -88,12 +90,36 @@ function callbackJson(json) {
 function updateList(json) {
     var json_str = JSON.stringify(json);
     if (current_json !== null && json_str == current_json) {
+        // if(tmp == false && tmp2 == false)
+        // {
+        //     console.log("dentro if");
+        //     if(timeoutId)
+        //         clearTimeout(timeoutId);
+
+        //     tmp2 = true;
+        //     timeoutId = setTimeout(() => {
+        //         analisajson();
+        //     }, 900);
+        // }
         return;
     }
+    // tmp2 = false;
+    // console.log("DEPOIS_IGUAL");
     current_json = json_str;
     updateItems(json);
     updateSelectedIndex(json);
 }
+
+// function analisajson()
+// {
+//     console.log("igual");
+//     if(tmp2 == false) // já mudou slide
+//         return;
+//     else
+//         tmp = true;
+
+//     tmp2 = false;
+// }
 
 function updateItems(json) {
     if (json.items.length == items.length) {
@@ -109,6 +135,8 @@ function updateItems(json) {
         }
     }
     items = json.items;
+    //console.log("diferente");
+    //tmp = true;
     selected_index = -2;
     createTable();
 }
