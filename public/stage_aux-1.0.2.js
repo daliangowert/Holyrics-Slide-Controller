@@ -90,6 +90,13 @@ function callbackJson(json) {
 function updateList(json) {
     var json_str = JSON.stringify(json);
     if (current_json !== null && json_str == current_json) {
+        if (tmp == false && tmp2 == false) {
+            tmp2 = true;
+            timeoutId = setTimeout(() => {
+                tmp = true;
+                tmp2 = false;
+            }, 1500);
+        }
         // if(tmp == false && tmp2 == false)
         // {
         //     console.log("dentro if");
@@ -122,8 +129,16 @@ function updateList(json) {
 // }
 
 function updateItems(json) {
+    // console.log(items.length);
+    // const saoIguais = json.items.length === items.length && 
+    //               json.items.every((valor, indice) => valor === items[indice]);
+    // console.log(saoIguais);
+
+
     if (json.items.length == items.length) {
         var equals = true;
+
+
         for (var i = 0; i < items.length; i++) {
             if (json.items[i] != items[i]) {
                 equals = false;

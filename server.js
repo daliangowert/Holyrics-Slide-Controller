@@ -9,7 +9,7 @@ const { getMediaPlaylist, changeSlide, checkPresentationActive} = require('./api
 
 //Roteamento
 router.post('/api/GetMediaPlaylist/:ip/:token', getMediaPlaylist);
-router.post('/api/slide/:type/:ip/:token', changeSlide);
+router.post('/api/slide/:type/:force_change/:ip/:token', changeSlide);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json()); // necessário para enviar dados JSON no corpo da requisição
@@ -21,5 +21,7 @@ app.get('/', (req, res) => {
 
 app.listen(3000, () => {
   console.log('Servidor iniciado na porta 3000');
-  checkPresentationActive();
+  setInterval(() => {
+    checkPresentationActive();
+  }, 1000); 
 });

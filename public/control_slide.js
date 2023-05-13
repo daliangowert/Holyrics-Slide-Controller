@@ -2,77 +2,106 @@
 ip = "192.168.100.5"
 token = "MXdskASO1edgBsTG"
 itens_old = [], items_new = [];
-tmp = false, tmp2 = false;
+tmp = true, tmp2 = false;
+current_type = null;
 
-function change_slide(type) {
-    tmp = false;
-    items_old = items;
 
+// function change_slide(type) {
+//     tmp = false;
+//     items_old = items;
+//     //console.time('change');
+
+//     $.ajax({
+//         type: 'POST',
+//         url: '/api/slide/' + type + '/'+ ip + '/' + token,
+//         contentType: "application/json; charset=utf-8",
+
+//         success: function (response) {
+//             console.log(response);
+//             //console.timeEnd('change');
+//         },
+//         error: function (xhr, textStatus, errorThrown) {
+//             console.log('Erro: ' + textStatus + ' ' + errorThrown);
+//         }
+//     });
+// }
+
+async function sendSlide(type, force_change) {
+  return new Promise((resolve, reject) => {
     $.ajax({
-        type: 'POST',
-        url: '/api/slide/' + type + '/'+ ip + '/' + token,
-        contentType: "application/json; charset=utf-8",
+      type: 'POST',
+      url: '/api/slide/' + type + '/' + force_change + '/' + ip + '/' + token,
+      contentType: "application/json; charset=utf-8",
 
-        success: function (response) {
-            console.log(response);
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            console.log('Erro: ' + textStatus + ' ' + errorThrown);
-        }
+      success: function (response) {
+        console.log(response);
+        current_type = response.type;
+        resolve();
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Erro: ' + textStatus + ' ' + errorThrown);
+        reject();
+      }
     });
+  });
 }
 
-// async function sendSlide(type) {
-//     return new Promise((resolve, reject) => {
-//         $.ajax({
-//             type: 'POST',
-//             url: '/api/slide/' + type + '/'+ ip + '/' + token,
-//             contentType: "application/json; charset=utf-8",
+async function change_slide(type) {
+  items_old = items;
+  await sendSlide(type, 0);
+  if (current_type == 'verse') {
+    if (tmp) {
+      if(type == 'next')
+        previousButton.disabled = true;
+      else
+        nextButton.disabled = true;
+        
+      tmp = false;
+      await waitForTempToBeTrue();
+      console.log('após aguardar');
+      console.log(items_old);
+      items_new = items;
+      console.log(items_new);
+      if (check_fim_presentation())
+        if (type == 'previous')
+          await sendSlide(type, -1);
+        else
+          await sendSlide(type, 1);
 
-//             success: function (response) {
-//                 console.log(response);
-//                 resolve();
-//             },
-//             error: function (xhr, textStatus, errorThrown) {
-//                 console.log('Erro: ' + textStatus + ' ' + errorThrown);
-//                 reject();
-//             }
-//         });
-//     });
-// }
+      previousButton.disabled = false;
+      nextButton.disabled = false;
+    }
+    else {
+      console.log("tmp is false");
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        tmp = true;
+        tmp2 = false;
+      }, 1500);
+    }
+  }
+}
 
-// async function change_slide(type) {
-//     items_old = items;
-//     await sendSlide(type);
-//     tmp = false;
-//     await waitForTempToBeTrue();
-//     console.log('após aguardar');
-//     console.log(items_old);
-//     items_new = items;
-//     console.log(items_new);
-//     check_fim_presentation();
-// }
+// Compara se dois arrays itens são iguais e volta/avança apresentação
+function check_fim_presentation() {
+  console.log(items_new.length);
+  console.log(items_old.length);
+  const saoIguais = items_new.length === items_old.length &&
+    items_new.every((valor, indice) => valor === items_old[indice]);
 
-// // Compara se dois arrays itens são iguais e volta/avança apresentação
-// function check_fim_presentation(){
-//     console.log(items_new.length);
-//     console.log(items_old.length);
-//     const saoIguais = items_new.length === items_old.length && 
-//                  items_new.every((valor, indice) => valor === items_old[indice]);
+  console.log(saoIguais);
+  return saoIguais;
+}
 
-//     console.log(saoIguais);
-//     console.log(items);
-// }
-
-// function waitForTempToBeTrue() {
-//     return new Promise((resolve) => {
-//       const checkTemp = () => {
-//         if (tmp === true) {
-//           resolve();
-//         } else {
-//           setTimeout(checkTemp, 50);
-//         }
-//       };
-//       checkTemp();
-//     });
-//   }
+function waitForTempToBeTrue() {
+  return new Promise((resolve) => {
+    const checkTemp = () => {
+      if (tmp === true) {
+        resolve();
+      } else {
+        setTimeout(checkTemp, 50);
+      }
+    };
+    checkTemp();
+  });
+}
