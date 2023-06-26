@@ -5,7 +5,7 @@ itens_old = [], items_new = [];
 tmp = true, tmp2 = false;
 current_type = null;
 
-
+// ### OLD ###
 // function change_slide(type) {
 //     tmp = false;
 //     items_old = items;
@@ -26,11 +26,15 @@ current_type = null;
 //     });
 // }
 
+function init(){
+  console.log("ok")
+}
+
 async function sendSlide(type, force_change) {
   return new Promise((resolve, reject) => {
     $.ajax({
       type: 'POST',
-      url: '/api/slide/' + type + '/' + force_change + '/' + ip + '/' + token,
+      url: '/api/slide/' + type + '/' + force_change,
       contentType: "application/json; charset=utf-8",
 
       success: function (response) {
@@ -47,6 +51,31 @@ async function sendSlide(type, force_change) {
 }
 
 async function change_slide(type) {
+  // Passa próxima/anterior linha do slide
+  if(type == 'previous')
+  {
+    selected_index--;
+    if (selected_index < 0) 
+      selected_index = 0;
+    else{
+      selected_index_changed = selected_index;
+      refreshSelectedIndex();
+      return;
+    }
+  }
+  else if(type == 'next')
+  {
+    selected_index++;
+    if (selected_index >= items.length)  
+      selected_index = items.length - 1;
+    else{
+      selected_index_changed = selected_index;
+      refreshSelectedIndex();
+      return;
+    }
+  }
+
+  // Muda de slide
   items_old = items;
   await sendSlide(type, 0);
   if (current_type == 'verse') {

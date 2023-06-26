@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html lang="pt-br">
+    <head>
+        <title>Holyrics - Receber Transmissão (Texto)</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="main.css">
+        <link rel="stylesheet" type="text/css" href="utilities.css">
+        <link rel="stylesheet" type="text/css" href="custom-css2.css">
+        <script src="jquery-1.8.3.js"></script>
+        <script src="holyrics-plugin-json-stream-1.0.4.js"></script>
+    </head>
+    <body onload="setTimeout('bodyOnload()', 100)" onresize="updateOnResize()">
+        <div id='general' class='screen-custom' ondblclick='fullscreenToggle()'>
+            <div id='display' class='text-custom'><div id='visible'></div><div id='invisible'></div></div>
+            <div class='marquee alert-custom' id='alert'></div>
+            <div id='alert-invisible' class='alert-custom'></div>
+            <div id='slide_info' class='slide_info'>
+                <div id='music_title' class='music_title'></div>
+                <div id='music_artist' class='music_artist'></div>
+                <div id='music_author' class='music_author'></div>
+                <div id='text_title' class='text_title'></div>
+            </div>
+        </div>
+        <div id="snackbar"></div>
+        <div id="modal" class="modal"></div>
+        <script type='text/javascript' src="holyrics-plugin-utils-1.0.1.js"></script>
+        <script type='text/javascript'>
+            htmlType = 1;
+cssHash = '0';
+        </script>
+    </body>
+</html>

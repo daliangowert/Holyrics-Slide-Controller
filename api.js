@@ -1,4 +1,5 @@
 const axios = require('axios');
+const config = require('./db').config; // config lida do TXT
 
 // --------- Variáveis --------- 
 // Variável Global
@@ -14,8 +15,8 @@ isPrevious = false;
 // criando um objeto de solicitação simulado
 const req_local = {
   params: {
-    ip: '127.0.0.1',
-    token: 'MXdskASO1edgBsTG'
+    ip: config.ip,
+    token: config.token
   },
   body: {
     data: 'example'
@@ -35,12 +36,16 @@ const res_local = {
   }
 };
 
+// Gera a url de comunicação com o Holyrics
+// Exemplo: http://192.168.100.5:8091/api/GetMediaPlaylist?token=MXdskASO1edgBsTG
+function generate_url(content) {
+  return `http://${config.ip}:${config.port}/api/` + content + `?token=${config.token}`;
+}
+
+
 // GetMediaPlaylist
 function getMediaPlaylist(req, res) {
-  const ip = req.params.ip;
-  const token = req.params.token;
-
-  url = `http://${ip}:8091/api/GetMediaPlaylist?token=${token}`;
+  url = generate_url('GetMediaPlaylist');
 
   const data = req.body;
 
@@ -73,8 +78,6 @@ function getMediaPlaylist(req, res) {
 }
 
 async function changeSlide(req, res) {
-  const ip = req.params.ip;
-  const token = req.params.token;
   const type = req.params.type;
   const force_change = req.params.force_change;
 
@@ -98,6 +101,7 @@ async function changeSlide(req, res) {
       await SlideAtual();
       //console.log(list_media);
       //console.log(slide_atual)
+
       // Próxima apresentação
       if (slide_atual.slide_index == slide_atual.slide_total && type == 'next') {
         await nextID();
@@ -121,11 +125,10 @@ async function changeSlide(req, res) {
     }
   }
 
-  let url = "";
   if (type == 'next')
-    url = `http://${ip}:8091/api/ActionNext?token=${token}`;
+    url = generate_url('ActionNext');
   else if (type == 'previous')
-    url = `http://${ip}:8091/api/ActionPrevious?token=${token}`;
+    url = generate_url('ActionPrevious');
 
   const data = req.body;
 
@@ -142,14 +145,6 @@ async function changeSlide(req, res) {
     response.data.type = type_current;
     console.log(response.data);
 
-    // if (response.data.status == 'error' && response.data.error == 'No presentation available') {
-    //   nextID();
-    // } else {
-    //   // setTimeout(() => {
-    //   //   SlideAtual();
-    //   // }, 300);
-    // }
-
     res.send(response.data);
   } catch (error) {
     console.log(error);
@@ -158,8 +153,7 @@ async function changeSlide(req, res) {
 }
 
 function SlideAtual() {
-  const token = "MXdskASO1edgBsTG";
-  const url = `http://localhost:8091/api/SlideAtual?token=${token}`;
+  url = generate_url('SlideAtual');
 
   const data = {
     isprevious: isPrevious
@@ -173,7 +167,6 @@ function SlideAtual() {
     })
       .then(response => {
         slide_atual = response.data.data;
-        //console.log("Slide atual: " + response.data.data);
         isPrevious = false;
         resolve();
       })
@@ -194,7 +187,6 @@ function nextID() {
     id_current = null;
     type_current = null;
     CloseCurrentPresentation();
-    //checkPresentationActive();
   }
   else if (pos_id == -1) // Não iniciou nenhuma apresentação
   {
@@ -228,7 +220,6 @@ function previousID() {
     id_current = list_media[pos_id].id;
     type_current = list_media[pos_id].type;
     isPrevious = true;
-    //console.log(slide_atual);
 
     // Iniciar apresentação do id anterior
     console.log("Chamando ID anterior!");
@@ -238,10 +229,9 @@ function previousID() {
 
 //MediaPlaylistAction
 async function MediaPlaylistAction() {
-  token = "MXdskASO1edgBsTG"
-  //TODO: passar ip e token
-  url = `http://localhost:8091/api/MediaPlaylistAction?id=${id_current}&token=${token}`;
+  url = `http://${config.ip}:${config.port}/api/MediaPlaylistAction?id=${id_current}&token=${config.token}`;
 
+  console.log(url)
   try {
     const response = await axios.post(url, {
       headers: {
@@ -249,16 +239,11 @@ async function MediaPlaylistAction() {
       }
     });
 
-    //console.log(response.data);
-
     // Se chamou uma apresentação anterior a atual
     if (isPrevious) {
       await SlideAtual();
     }
 
-    // setTimeout(() => {
-    //   SlideAtual();
-    // }, 800);
   } catch (error) {
     console.log(error);
   }
@@ -266,9 +251,7 @@ async function MediaPlaylistAction() {
 
 //GetCurrentPresentation
 function checkPresentationActive() {
-  token = "MXdskASO1edgBsTG"
-  //TODO: passar ip e token
-  url = `http://localhost:8091/api/GetCurrentPresentation?token=${token}`;
+  url = generate_url('GetCurrentPresentation');
 
   axios.post(url, {
     headers: {
@@ -276,10 +259,9 @@ function checkPresentationActive() {
     }
   })
     .then(response => {
-      console.log(response.data);
+      //console.log(response.data);
       if (response.data.data == null)
         presentation_active = false;
-      //setTimeout(checkPresentationActive, 1000);
       else if (presentation_active == true) {
         SlideAtual();
         //console.log("Apresentação já ativa!");
@@ -308,9 +290,7 @@ function checkPresentationActive() {
 
 //CloseCurrentPresentation
 function CloseCurrentPresentation() {
-  token = "MXdskASO1edgBsTG"
-  //TODO: passar ip e token
-  url = `http://localhost:8091/api/CloseCurrentPresentation?token=${token}`;
+  url = generate_url('CloseCurrentPresentation');
 
   axios.post(url, {
     headers: {

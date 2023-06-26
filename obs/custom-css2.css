@@ -1,0 +1,45 @@
+.screen-custom {
+    /* background: url('./fundos/music.png');
+    background-repeat: no-repeat;
+    background-size: cover; */
+}
+
+.text-custom {
+    background-color: transparent !important; 
+    margin-top: 10px;
+}
+
+:root {
+    --animation_out_delay: 300;
+}
+
+@keyframes nome_da_animacao_de_entrada {
+    from {opacity: 0.0}
+    to   {opacity: 1.0}
+}
+
+@keyframes nome_da_animacao_de_saida {
+    from {opacity: 1.0}
+    to   {opacity: 0.0}
+}
+
+.text-custom span {
+    animation-name: nome_da_animacao_de_entrada;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.animation_out {
+    animation-name: nome_da_animacao_de_saida;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+
+/* .text_slide {
+    padding-left: 12%;
+    display: flex; */
+    /*justify-content: center;*/
+    /* align-items: center; */
+    /*height: 100%;*/
+  /* } */

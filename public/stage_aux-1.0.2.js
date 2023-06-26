@@ -220,21 +220,55 @@ function textAreaKeyPressed(evt) {
     if (window.mobileAndTabletCheck() == true) {
         return;
     }
+
+    // TODO: com SHIFT pressiondo, mudar slide 
+    // if (evt.shiftKey && (evt.keyCode === 37 || evt.keyCode === 38)) {
+    //     console.log("ok");
+    // }
+
+
     if (evt.keyCode === 37 || evt.keyCode === 38) { //left || up
-        selected_index--;
-    } else if (evt.keyCode === 39 || evt.keyCode === 40) { //right || down
-        selected_index++;
-        if (selected_index >= items.length) {
-            selected_index = items.length - 1;
-        }
-    } else {
+        change_slide('previous');
+        flashButton('left');
+    }
+    else if (evt.keyCode === 39 || evt.keyCode === 40) { //right || down
+        change_slide('next');
+        flashButton('right');
+    }
+    else
         return;
-    }
-    if (selected_index < 0) {
-        selected_index = 0;
-    }
-    selected_index_changed = selected_index;
+
     evt.stopPropagation();
     evt.preventDefault();
-    refreshSelectedIndex();
+
+
+    // ##### OLD
+    // if (evt.keyCode === 37 || evt.keyCode === 38) { //left || up
+    //     selected_index--;
+    // } else if (evt.keyCode === 39 || evt.keyCode === 40) { //right || down
+    //     selected_index++;
+    //     if (selected_index >= items.length) {
+    //         change_slide('next');
+    //         selected_index = items.length - 1;
+    //     }
+    // } else {
+    //     return;
+    // }
+    // if (selected_index < 0) {
+    //     change_slide('previous');
+    //     selected_index = 0;
+    // }
+    // selected_index_changed = selected_index;
+    // evt.stopPropagation();
+    // evt.preventDefault();
+    // refreshSelectedIndex();
+}
+
+// Pisca o botão ao selecionar com a seta do teclado correspondente
+function flashButton(button) {
+    var buttonElement = document.querySelector('.control-btn.' + button);
+    buttonElement.style.boxShadow = '0 0 0 3px rgb(248, 248, 248)';
+    setTimeout(function () {
+        buttonElement.style.boxShadow = '';
+    }, 200);
 }
