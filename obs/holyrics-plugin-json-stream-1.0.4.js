@@ -49,11 +49,29 @@ var transparentMode = false;
 var imgDisplayNone = null;
 var displayErrors = '_true';
 var cssHash = "0";
+var config;
 
 //transition
 var transition_on = false;
 
 function bodyOnload() {
+    // Pega as configs para conversação com o Holyrics
+    $.ajax({
+        url: '/config',
+        method: 'GET',
+        cache: false,
+        async: false,
+        dataType: 'json',
+        timeout: 1000,
+        success: function (response) {
+            // Variável config recebida na resposta
+            config = response;
+        },
+        error: function (error) {
+            console.error('Erro ao obter a configuração:', error);
+        }
+    });
+
     var keys = Object.keys(defaultValues);
     for (var i = 0; i < keys.length; i++) {
         fields[keys[i]] = defaultValues[keys[i]];
@@ -64,7 +82,7 @@ function bodyOnload() {
 function refresh() {
     $.ajax({
         type: 'GET',
-        url: 'http://192.168.100.5:7575/stage-view/text.json',
+        url: `http://${config.ip}:7575/stage-view/text.json`,
         data: {
             html_type: htmlType,
             img_id: fields['img_id'],

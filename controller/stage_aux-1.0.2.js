@@ -14,7 +14,26 @@ var cssHash = "0";
 
 let timeoutId;
 
+var config;
+
 function init() {
+    // Pega as configs para conversação com o Holyrics
+    $.ajax({
+        url: '/config',
+        method: 'GET',
+        cache: false,
+        async: false,
+        dataType: 'json',
+        timeout: 1000,
+        success: function (response) {
+            // Variável config recebida na resposta
+            config = response;
+        },
+        error: function (error) {
+            console.error('Erro ao obter a configuração:', error);
+        }
+    });
+
     update();
 }
 
@@ -30,7 +49,7 @@ function update() {
 
     $.ajax({
         type: 'GET',
-        url: 'http://192.168.100.5:7575/stage-view/text-aux-control.json',
+        url: `http://${config.ip}:7575/stage-view/text-aux-control.json`,
         data: {
             'html_type': htmlType,
             'selected_index': _selected_index,

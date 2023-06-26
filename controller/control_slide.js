@@ -1,6 +1,4 @@
 // Faz as requisições a API do Holyrics para voltar e avançar slide
-ip = "192.168.100.5"
-token = "MXdskASO1edgBsTG"
 itens_old = [], items_new = [];
 tmp = true, tmp2 = false;
 current_type = null;
@@ -25,10 +23,6 @@ current_type = null;
 //         }
 //     });
 // }
-
-function init(){
-  console.log("ok")
-}
 
 async function sendSlide(type, force_change) {
   return new Promise((resolve, reject) => {
