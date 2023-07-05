@@ -1,0 +1,2 @@
+2023-07-05 19:33:07 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 C:\Users\dalia\AppData\Roaming\npm\node_modules\node-windows\lib\wrapper.js --file "D:\Apps desenvolvidos\Visual Studio\Holyrics Slide Controller\server.js" --scriptoptions= --log "Holyrics_Controller wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2023-07-05 19:33:07 - Started 23512

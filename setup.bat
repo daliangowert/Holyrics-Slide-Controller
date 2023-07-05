@@ -18,22 +18,37 @@ if %errorlevel% equ 0 (
     winget install -e --id Python.Python.3.10
 )
 
-REM Verificar se o arquivo config.txt já existe
+@REM Verificar se o arquivo config.txt já existe
 
-set "config_file=config.txt"
+@REM set "config_file=config.txt"
 
-if not exist "%config_file%" (
-    echo Criando arquivo config.txt...
-    echo IP= >> "%config_file%"
-    echo port= >> "%config_file%"
-    echo token= >> "%config_file%"
-    echo Arquivo config.txt criado com sucesso.
-) else (
-    echo O arquivo config.txt ja existe.
-)
+@REM if not exist "%config_file%" (
+@REM     echo Criando arquivo config.txt...
+@REM     echo IP= >> "%config_file%"
+@REM     echo port= >> "%config_file%"
+@REM     echo token= >> "%config_file%"
+@REM     echo Arquivo config.txt criado com sucesso.
+@REM ) else (
+@REM     echo O arquivo config.txt ja existe.
+@REM )
 
-@REM REM Instalar dependências Node
+@REM Instalar dependências Node
 npm ci
+
+@REM Instalar node-windows
+npm install -g node-windows
+npm link node-windows
+
+REM Verifica se o serviço existe
+set SERVICE_NAME=Holyrics_Controller
+sc query %SERVICE_NAME% > nul 2>&1
+if %errorlevel% equ 0 (
+    echo O serviço %SERVICE_NAME% ja existe.
+) else (
+    echo O serviço %SERVICE_NAME% nao existe. Executando o comando 'node createService'...
+    node createService
+)
+echo Serviço p/ Windows criado!
 
 echo.
 pause

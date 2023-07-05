@@ -14,5 +14,6 @@ import os
 
 # dir = os.path.dirname(os.path.abspath(__file__))
 dir = "D:\Apps desenvolvidos\Visual Studio\Holyrics Slide Controller\server.js"
+dir = "D:\holy\server.js"
 print("Diretório atual:", dir+"\server.js")
 executar_codigo_node(dir)

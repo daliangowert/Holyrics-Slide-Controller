@@ -1,0 +1,5 @@
+Servidor iniciado na porta 3000
+Apresentação iniciada!
+Playlist atualizada!
+Requisição next
+{ status: 'ok', type: 'song' }
