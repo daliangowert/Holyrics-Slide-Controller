@@ -38,14 +38,7 @@ app.get('/config', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public/fundo.png'));
 // });
 
-app.listen(3000, () => {
-  if (!config) {
-    console.log("#########")
-    console.log("Arquivo config.txt não encontrado! Preencha-o com:\n\nIP={IP_HOLYRICS}\ntoken={TOKEN_HOLYRICS}\n");
-    console.log("#########")
-    return;
-  }
-  
+app.listen(3000, () => {  
   console.log('Servidor iniciado na porta 3000');
   setInterval(() => {
     checkPresentationActive();

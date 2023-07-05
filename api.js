@@ -12,6 +12,13 @@ type_current = null;
 pos_id = -1;
 isPrevious = false;
 
+if (!config) {
+  console.log("#########");
+  console.log("Arquivo config.txt não encontrado! Preencha-o com:\n\nIP={IP_HOLYRICS}\nport=8091\ntoken={TOKEN_HOLYRICS}\n");
+  console.log("#########");
+  throw new Error("Arquivo config.txt não encontrado!");
+}
+
 // criando um objeto de solicitação simulado
 const req_local = {
   params: {
@@ -231,7 +238,6 @@ function previousID() {
 async function MediaPlaylistAction() {
   url = `http://${config.ip}:${config.port}/api/MediaPlaylistAction?id=${id_current}&token=${config.token}`;
 
-  console.log(url)
   try {
     const response = await axios.post(url, {
       headers: {
