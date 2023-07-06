@@ -1,4 +1,4 @@
-# Holyrics Controller
+# Holyrics Slide Controller
 
 ## Instalação
 Para instalar, siga as etapas abaixo:
