@@ -1,21 +1,27 @@
-- Para instalar:
-1)Execute setup.bat para instalar todas as dependências node.
+# Holyrics Controller
 
-2)Altere o arquivo config.txt com os seguintes parâmetros:
+## Instalação
+Para instalar, siga as etapas abaixo:
 
+1. Execute o arquivo `setup.bat` para instalar todas as dependências do Node.
+
+2. Abra o arquivo `config.txt` e altere os seguintes parâmetros:
+
+```
 IP: <IP-do-Holyrics>
 PORT: <Porta API SERVER/Holyrics>
 TOKEN: <Token API SERVER/Holyrics>
+```
 
-3) No OBS, adicione o caminho de instalação do Python em Ferramentas->Scripts->Configurações do Python. (Versão 3.10 ou menor)
+3. Reinicie o serviço com o seguinte comando no PowerShell executado como Administrador (sempre que fizer alterações nos arquivos):
 
-4) Adicione o script "holyrics_controller.py" na aba Scripts.
+```
+Restart-Service -Name Holyrics_Controller
+```
 
-5) Abra o Holyrics e veja se consegue controlar pelos seguintes links:
+4. Abra o Holyrics e verifique se consegue controlar a apresentação através dos seguintes links:
 
-Para o uso:
+- Para o uso do Controller: `http://<IP-do-server>:3000`
+- Para o uso do OBS: `http://<IP-do-server>:3000/obs`
 
-Link Controller: http://<IP-do-server>:3000
-Link OBS:        http://<IP-do-server>:3000/obs
-
-P.S: Ao iniciar o programa pela primeira vez, execute teste_conexao.bat para fazer depuração do código.
+> **Observação:** Ao iniciar o programa pela primeira vez, execute o arquivo `teste_conexao.bat` para fazer a depuração do código. Certifique-se de desligar o serviço usando o comando `Stop-Service -Name Holyrics_Controller` antes de executar o teste de conexão.

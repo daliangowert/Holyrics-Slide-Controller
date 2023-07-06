@@ -18,20 +18,6 @@ if %errorlevel% equ 0 (
     winget install -e --id Python.Python.3.10
 )
 
-@REM Verificar se o arquivo config.txt já existe
-
-@REM set "config_file=config.txt"
-
-@REM if not exist "%config_file%" (
-@REM     echo Criando arquivo config.txt...
-@REM     echo IP= >> "%config_file%"
-@REM     echo port= >> "%config_file%"
-@REM     echo token= >> "%config_file%"
-@REM     echo Arquivo config.txt criado com sucesso.
-@REM ) else (
-@REM     echo O arquivo config.txt ja existe.
-@REM )
-
 @REM Instalar dependências Node
 npm ci
 
