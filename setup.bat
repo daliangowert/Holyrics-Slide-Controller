@@ -9,8 +9,8 @@ if %errorlevel% equ 0 (
     winget install -e --id OpenJS.NodeJS
 )
 
-@REM Instalar dependências Node
-echo Instalando dependências Node...
+@REM Instalar dependencias Node
+echo Instalando dependencias Node...
 call npm ci
 
 @REM Instalar node-windows
@@ -26,7 +26,8 @@ if %errorlevel% equ 0 (
     echo O servico %SERVICE_NAME% nao existe. Executando o comando 'node createService'...
     node createService
 )
-echo Serviço p/ Windows criado!
+echo Servico p/ Windows criado!
+echo Script executado!
 
 echo.
 pause
