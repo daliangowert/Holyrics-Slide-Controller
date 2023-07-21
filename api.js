@@ -200,10 +200,13 @@ function nextID() {
     console.log("Nenhuma apresentação armazenada");
   }
   else {
-    pos_id++;
-    id_current = list_media[pos_id].id;
-    type_current = list_media[pos_id].type;
-    console.log(type_current);
+    do {
+      pos_id++;
+      id_current = list_media[pos_id].id;
+      type_current = list_media[pos_id].type;
+      console.log(type_current);
+    }
+    while (type_current == 'title');
 
     // Iniciar apresentação do próximo id
     console.log("Chamando próximo ID!");
@@ -223,9 +226,13 @@ function previousID() {
     console.log("Nenhuma apresentação armazenada");
   }
   else {
-    pos_id--;
-    id_current = list_media[pos_id].id;
-    type_current = list_media[pos_id].type;
+    do {
+      pos_id--;
+      id_current = list_media[pos_id].id;
+      type_current = list_media[pos_id].type;
+      console.log(type_current);
+    } while (type_current == 'title');
+
     isPrevious = true;
 
     // Iniciar apresentação do id anterior
