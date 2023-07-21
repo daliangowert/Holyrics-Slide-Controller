@@ -47,6 +47,9 @@ function update() {
     selected_index_changed = -1;
     //var _selected_index_changed = selected_index_changed ? true : false;
 
+    // Função para simular página front OBS aberta
+    simulate_front();
+
     $.ajax({
         type: 'GET',
         url: `http://${config.ip}:7575/stage-view/text-aux-control.json`,

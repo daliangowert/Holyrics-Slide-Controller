@@ -46,23 +46,21 @@ async function sendSlide(type, force_change) {
 
 async function change_slide(type) {
   // Passa próxima/anterior linha do slide
-  if(type == 'previous')
-  {
+  if (type == 'previous') {
     selected_index--;
-    if (selected_index < 0) 
+    if (selected_index < 0)
       selected_index = 0;
-    else{
+    else {
       selected_index_changed = selected_index;
       refreshSelectedIndex();
       return;
     }
   }
-  else if(type == 'next')
-  {
+  else if (type == 'next') {
     selected_index++;
-    if (selected_index >= items.length)  
+    if (selected_index >= items.length)
       selected_index = items.length - 1;
-    else{
+    else {
       selected_index_changed = selected_index;
       refreshSelectedIndex();
       return;
@@ -74,11 +72,11 @@ async function change_slide(type) {
   await sendSlide(type, 0);
   if (current_type == 'verse') {
     if (tmp) {
-      if(type == 'next')
+      if (type == 'next')
         previousButton.disabled = true;
       else
         nextButton.disabled = true;
-        
+
       tmp = false;
       await waitForTempToBeTrue();
       console.log('após aguardar');
@@ -126,5 +124,31 @@ function waitForTempToBeTrue() {
       }
     };
     checkTemp();
+  });
+}
+
+//Simular requisição front OBS
+function simulate_front() {
+  $.ajax({
+    type: 'GET',
+    url: `http://${config.ip}:7575/stage-view/text.json`,
+    data: {
+      html_type: htmlType,
+      // img_id: fields['img_id'],
+      // css_hash: cssHash
+    },
+    cache: false,
+    async: true,
+    dataType: 'json',
+    timeout: 2000,
+    success: function (response) {
+      try {
+        if (response.reload === "_true") {
+          location.reload();
+        }
+      } catch (err) {
+        //ignore
+      }
+    }
   });
 }

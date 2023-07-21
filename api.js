@@ -163,7 +163,8 @@ function SlideAtual() {
   url = generate_url('SlideAtual');
 
   const data = {
-    isprevious: isPrevious
+    isprevious: isPrevious,
+    type: type_current
   };
 
   return new Promise((resolve, reject) => {
