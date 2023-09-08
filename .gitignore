@@ -3,3 +3,4 @@ config.txt
 __pycache__
 daemon
 .sketch
+*.pdf

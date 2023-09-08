@@ -18,9 +18,9 @@ function lerConfig() {
 
     if (matchIP && matchToken && matchPort) {
         config = {
-            ip: matchIP[1],
-            port: matchPort[1],
-            token: matchToken[1]
+            ip: matchIP[1],         // Ip do Holyrics
+            port: matchPort[1],     // Port API
+            token: matchToken[1],   // Token API
         };
     } else {
         config = null;

@@ -2,18 +2,18 @@
 
 # node server.js
 
-import subprocess
+# import subprocess
 
-def executar_codigo_node(caminho_arquivo_js):
-    try:
-        output = subprocess.check_output(['node', caminho_arquivo_js])
-    except subprocess.CalledProcessError as e:
-        print(f"Erro ao executar o código Node.js: {e}")
+# def executar_codigo_node(caminho_arquivo_js):
+#     try:
+#         output = subprocess.check_output(['node', caminho_arquivo_js])
+#     except subprocess.CalledProcessError as e:
+#         print(f"Erro ao executar o código Node.js: {e}")
 
-import os
+# import os
 
-# dir = os.path.dirname(os.path.abspath(__file__))
-dir = "D:\Apps desenvolvidos\Visual Studio\Holyrics Slide Controller\server.js"
-dir = "D:\holy\server.js"
-print("Diretório atual:", dir+"\server.js")
-executar_codigo_node(dir)
+# # dir = os.path.dirname(os.path.abspath(__file__))
+# dir = "D:\Apps desenvolvidos\Visual Studio\Holyrics Slide Controller\server.js"
+# dir = "D:\holy\server.js"
+# print("Diretório atual:", dir+"\server.js")
+# executar_codigo_node(dir)
