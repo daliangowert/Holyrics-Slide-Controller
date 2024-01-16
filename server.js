@@ -8,12 +8,15 @@ const { spawn } = require('child_process');
 const router = express.Router();
 const { getMediaPlaylist, changeSlide, checkPresentationActive } = require('./api');
 const { printPresentation } = require('./print');
+const { getDmxValues } = require('./artnet');
 const config = require('./db').config; // config lida do TXT
 
 //Roteamento
 //router.post('/api/GetMediaPlaylist/:ip/:token', getMediaPlaylist);
 router.post('/api/slide/:type/:force_change', changeSlide);
 router.get('/pr1ntPresentation', printPresentation);
+router.get('/getDmxValues', getDmxValues);
+
 
 app.use(express.static(path.join(__dirname, 'controller')));
 app.use(express.static(path.join(__dirname, 'obs')));
