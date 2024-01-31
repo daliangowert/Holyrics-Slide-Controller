@@ -582,6 +582,23 @@ async function getPlaylistInfo() {
   });
 }
 
+//GetCurrentSchedule
+async function getCurrentSchedule(){
+  try {
+    const url = generate_url('GetCurrentSchedule');
+
+    const response = await axios.post(url, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+  }
+}
+
 // Exportar funções
 module.exports = {
   getMediaPlaylist: getMediaPlaylist,
@@ -594,6 +611,7 @@ module.exports = {
   SlideAtual: SlideAtual,
   ActionNextorPrevious: ActionNextorPrevious,
   waitForVerseChange: waitForVerseChange,
+  getCurrentSchedule: getCurrentSchedule,
   req_local: req_local,
   res_local: res_local
 };

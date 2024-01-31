@@ -8,7 +8,7 @@ const { spawn } = require('child_process');
 const router = express.Router();
 const { getMediaPlaylist, changeSlide, checkPresentationActive } = require('./api');
 const { printPresentation } = require('./print');
-const { converterMediaPlaylistFromImage } = require('./presentation');
+const { converterMediaPlaylistFromPPT } = require('./presentation');
 const { getDmxValues } = require('./artnet');
 const config = require('./db').config; // config lida do TXT
 
@@ -16,7 +16,7 @@ const config = require('./db').config; // config lida do TXT
 //router.post('/api/GetMediaPlaylist/:ip/:token', getMediaPlaylist);
 router.post('/api/slide/:type/:force_change', changeSlide);
 router.get('/pr1ntPresentation', printPresentation);
-router.get('/converterMediaPlaylistFromImage', converterMediaPlaylistFromImage);
+router.get('/converterMediaPlaylistFromPPT', converterMediaPlaylistFromPPT);
 router.get('/getDmxValues', getDmxValues);
 
 

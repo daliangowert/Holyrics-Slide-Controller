@@ -26,9 +26,9 @@ const simulatedResponse = {
 };
 
 //APAGAR
-//converterMediaPlaylistFromImage(global.req, global.res);
+//converterMediaPlaylistFromPPT(global.req, global.res);
 
-async function converterMediaPlaylistFromImage(req, res) {
+async function converterMediaPlaylistFromPPT(req, res) {
   dataWidescreen = null;
   countSlide = 1;
   pos_id_atual = -1;
@@ -62,7 +62,6 @@ async function converterMediaPlaylistFromImage(req, res) {
 
         await waitGetCurrentPresentation();
         var presentation = await api.getCurrentPresentation();
-        console.log(presentation);
 
         total_slides = presentation.data.total_slides;
 
@@ -191,8 +190,9 @@ async function converterMediaPlaylistFromImage(req, res) {
     flagPosId++;
   }
 
-  await createPowerPoint();
-  //res.send({ status: "ok" });
+  pathPPT = await createPowerPoint();
+
+  res.send({ status: "ok" , path: pathPPT});
 }
 
 function waitWidescreenNull() {
@@ -342,13 +342,17 @@ async function createPowerPoint() {
       slide.addImage(path.join(tempDir, filesOrdely), { x: 0, y: 0, cx: '100%', cy: '100%' });
     });
 
+    var schedule = await api.getCurrentSchedule();
+    pathPPT = config.folderPresentation + '\\' + schedule.data[0].name + ' - ' + schedule.data[0].datetime.split(' ')[0] +'.pptx';
+
     await new Promise((resolve, reject) => {
-      let stream = fs.createWriteStream(tempDir + '\Apresentacao.pptx');
+      let stream = fs.createWriteStream(pathPPT);
       pptx.generate(stream, { finalize: (written) => resolve() });
       stream.on('error', (err) => reject('Erro ao salvar a apresentação: ' + err));
     });
 
-    console.log('Apresentação salva com sucesso: ' + tempDir);
+    console.log('Apresentação salva com sucesso: ' + config.folderPresentation);
+    return pathPPT;
   } catch (error) {
     console.error('Erro ao criar a apresentação: ', error);
   }
@@ -374,5 +378,5 @@ async function clearFolder(path) {
 
 // Exportar funções
 module.exports = {
-  converterMediaPlaylistFromImage: converterMediaPlaylistFromImage
+  converterMediaPlaylistFromPPT: converterMediaPlaylistFromPPT
 };
