@@ -255,5 +255,6 @@ module.exports = {
     organizeTextPDF: organizeTextPDF,
     saveDocumentPDF: saveDocumentPDF,
     drawPhoto: drawPhoto,
+    createDirectory: createDirectory,
     textParams: textParams
 };

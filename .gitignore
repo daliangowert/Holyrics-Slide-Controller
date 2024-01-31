@@ -4,3 +4,4 @@ __pycache__
 daemon
 .sketch
 *.pdf
+obs/fundos/*.png

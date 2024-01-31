@@ -231,7 +231,7 @@ async function waitForVerseChange(res, type) {
       console.log("Verse diferente");
       res.send(resp);
     } else if (tentativas > 6) {
-      console.log("Mais de 6 tentativas, mudando para a apresentação anterior!");
+      console.log("Mais de 6 tentativas, mudando para a apresentação anterior/seguinte!");
 
       if (type === 'next') {
         await nextID();
@@ -493,6 +493,33 @@ async function checkPresentationActive() {
   }
 }
 
+
+//getCurrentPresentation();
+
+//GetCurrentPresentation
+async function getCurrentPresentation() {
+  try {
+    const url = generate_url('GetCurrentPresentation');
+    // const data = {
+    //   include_slides: false,
+    //   include_slide_preview: true,
+    //   slide_preview_size: '320x180'
+    // };
+
+    const response = await axios.post(url, /*data,*/ {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    //console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+  }
+}
+
 //CloseCurrentPresentation
 async function closeCurrentPresentation() {
   try {
@@ -560,10 +587,13 @@ module.exports = {
   getMediaPlaylist: getMediaPlaylist,
   changeSlide: changeSlide,
   checkPresentationActive: checkPresentationActive,
+  getCurrentPresentation: getCurrentPresentation,
   MediaPlaylistAction: MediaPlaylistAction,
   closeCurrentPresentation: closeCurrentPresentation,
   getPlaylistInfo: getPlaylistInfo,
   SlideAtual: SlideAtual,
+  ActionNextorPrevious: ActionNextorPrevious,
+  waitForVerseChange: waitForVerseChange,
   req_local: req_local,
   res_local: res_local
 };
