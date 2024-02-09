@@ -13,11 +13,11 @@ const { title } = require('process');
 // --------- Variáveis --------- 
 pdfDoc = null;
 page = null;
-marginPage = 50;
+marginPage = 40;
 borderThickness = 0.5; // Espessura da borda em pontos 
 borderColor = rgb(0, 0, 0); // Cor da borda
-scaleW = 0.15; // scaleWidht 0.14
-scaleH = 0.15; // scaleHeight
+scaleW = 0.18; // scaleWidht 0.14
+scaleH = 0.18; // scaleHeight
 dataHTML = null;
 flagPosId = -1;
 //backup_id = null;
@@ -261,7 +261,7 @@ async function formatTitulo() {
 
 // Exemplo: await getPresentation(id_atual, dataCurrentPresentation)
 async function getPresentation(id, data) {
-  await sleep(700);
+  await sleep(1300);
 
   presentation_tmp = await api.getCurrentPresentation(data);
 

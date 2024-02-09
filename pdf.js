@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const striptags = require('striptags');
 const os = require('os');
 const { exec } = require('child_process');
+const config = require('./db').config; // config lida do TXT
 
 pdfDoc = null;
 page = null;
@@ -17,34 +18,34 @@ const textParams = [
         name: 'TITLEPRIN',
         x: 0, // definir em tempo de código
         y: 0, // definir em tempo de código
-        size: 11,
+        size: 13,
         color: rgb(0, 0, 0),
         font: null, // definir em tempo de código
         lineHeight: 1.25 * 11 //1.25 * size
     },
     { // Title
         name: 'TITLE',
-        x: 50,
+        x: 40,//50
         y: 0, // definir em tempo de código
-        size: 10,
+        size: 11,
         color: rgb(0, 0, 0),
         font: null, // definir em tempo de código
         lineHeight: 1.25 * 10 //1.25 * size
     },
     { // Regular
         name: 'REGULAR',
-        x: 65,
+        x: 45,
         y: 0, // definir em tempo de código
-        size: 9,
+        size: 10,
         color: rgb(0, 0, 0),
         font: null, // definir em tempo de código
         lineHeight: 1.25 * 9 //1.25 * size
     },
     { // Regular
         name: 'REGULAR_BOLD',
-        x: 65,
+        x: 45,
         y: 0, // definir em tempo de código
-        size: 9,
+        size: 10,
         color: rgb(0, 0, 0),
         font: null, // definir em tempo de código
         lineHeight: 1.25 * 9 //1.25 * size
@@ -64,13 +65,13 @@ async function initDocumentPDF(margPage, borderTckn, borderCol, nmeArchive) {
 }
 
 async function verifyPDFisOpen() {
-    tempDir = await createDirectory();
+    //tempDir = await createDirectory();
     pdfBytes = Buffer.from('%PDF-1.5\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 55 >>\nstream\nBT\n/F1 12 Tf\n100 100 Td\n(Hello, PDF!) Tj\nET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000010 00000 n \n0000000070 00000 n \n0000000119 00000 n \n0000000175 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n211\n%%EOF', 'utf-8');
 
 
     try {
         // Salva o PDF em um arquivo
-        await fs.writeFile(tempDir + nameArchive + '.pdf', pdfBytes);
+        await fs.writeFile(config.folderPresentation + '\\' + nameArchive + '.pdf', pdfBytes);
     } catch (error) {
         console.error('Ocorreu um erro ao escrever o arquivo:', error);
         return { 'status': 'error', error };
@@ -251,12 +252,12 @@ async function saveDocumentPDF() {
 
     const pdfBytes = await pdfDoc.save();
 
-    tempDir = await createDirectory();
+    //tempDir = await createDirectory();
 
     // Salva o PDF em um arquivo
-    await fs.writeFile(tempDir + nameArchive + '.pdf', pdfBytes);
+    await fs.writeFile(config.folderPresentation + '\\' + nameArchive + '.pdf', pdfBytes);
 
-    exec(`start "" "${tempDir}"`);
+    exec(`start "" "${config.folderPresentation}"`);
 }
 
 // Exportar funções
