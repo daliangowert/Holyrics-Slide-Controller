@@ -18,7 +18,7 @@ body {
 }
 
 #visible {
-    padding-left: 18%;
+    padding-left: 18%; /*Margem fundos*/
     padding-right: 18%;
     font-family: "Arial";
     font-size: 15px;

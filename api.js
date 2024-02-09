@@ -493,9 +493,6 @@ async function checkPresentationActive() {
   }
 }
 
-
-//getCurrentPresentation();
-
 //GetCurrentPresentation
 async function getCurrentPresentation() {
   try {
@@ -507,6 +504,25 @@ async function getCurrentPresentation() {
     // };
 
     const response = await axios.post(url, /*data,*/ {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    //console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+  }
+}
+
+//GetCurrentPresentation
+async function getCurrentPresentation(data) {
+  try {
+    const url = generate_url('GetCurrentPresentation');
+
+    const response = await axios.post(url, data, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -599,6 +615,47 @@ async function getCurrentSchedule(){
   }
 }
 
+async function getGlobal(variavel)
+{
+  try {
+    const url = generate_url('GetGlobal');
+    const data = {
+      variavel: variavel
+    };
+
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    //console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+  }
+}
+
+//actionGoToIndex
+async function actionGoToIndex(index){
+  try {
+    const url = generate_url('ActionGoToIndex');
+    const data = {
+      index: index
+    };
+
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+  }
+}
+
 // Exportar funções
 module.exports = {
   getMediaPlaylist: getMediaPlaylist,
@@ -612,6 +669,8 @@ module.exports = {
   ActionNextorPrevious: ActionNextorPrevious,
   waitForVerseChange: waitForVerseChange,
   getCurrentSchedule: getCurrentSchedule,
+  getGlobal: getGlobal,
+  actionGoToIndex: actionGoToIndex,
   req_local: req_local,
   res_local: res_local
 };

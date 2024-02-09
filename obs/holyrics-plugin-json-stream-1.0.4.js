@@ -135,6 +135,9 @@ function fillAndUpdate(json) {
                 case "TEXT":
                     element.style.background = "url('./fundos/text.png')";
                     element.style.backgroundSize = '100% 100%';
+                    // Para setar uma margem esquerda pequena
+                    // var div_vis = document.querySelector('#visible');
+                    // div_vis.style.paddingLeft = '2%';
                     break;
                 case "BIBLE":
                     element.style.background = "url('./fundos/bible.png')";

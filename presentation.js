@@ -63,6 +63,12 @@ async function converterMediaPlaylistFromPPT(req, res) {
         await waitGetCurrentPresentation();
         var presentation = await api.getCurrentPresentation();
 
+        while(presentation.data === null){
+          presentation = await api.getCurrentPresentation();
+          console.log("#### Aguardando Presentation: ");
+          await sleep(100);
+        }
+
         total_slides = presentation.data.total_slides;
 
         for (i = 1; i < total_slides; i++) {
@@ -104,6 +110,12 @@ async function converterMediaPlaylistFromPPT(req, res) {
         await waitGetCurrentPresentation();
         var presentation = await api.getCurrentPresentation();
 
+        while(presentation.data === null){
+          presentation = await api.getCurrentPresentation();
+          console.log("#### Aguardando Presentation: ");
+          await sleep(100); 
+        }
+
         total_slides = presentation.data.total_slides;
 
         for (i = 1; i <= total_slides; i++) {
@@ -130,6 +142,12 @@ async function converterMediaPlaylistFromPPT(req, res) {
 
         await waitGetCurrentPresentation();
         var presentation = await api.getCurrentPresentation();
+
+        while(presentation.data === null){
+          presentation = await api.getCurrentPresentation();
+          console.log("#### Aguardando Presentation: ");
+          await sleep(100); 
+        }
 
         const verseId = global.list_media[flagPosId].verse_id.split(',');
         const lastId = verseId[verseId.length - 1];
@@ -288,6 +306,10 @@ function waitGetCurrentPresentation() {
 
     global.intervalGetCurrentPresentation = setTimeout(checkAndClearInterval, 50);
   });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function saveWidescreen(base64String, fileName) {

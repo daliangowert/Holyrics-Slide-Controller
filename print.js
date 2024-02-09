@@ -1,7 +1,8 @@
 const { Console } = require('console');
 const api = require('./api');
 const config = require('./db').config; // config lida do TXT
-const { requisitionHolyricsHTML } = require('./reqHTML');
+const bible = require('./bibles/bible');
+const { requisitionHolyricsHTML, requisitionWidescreen } = require('./reqHTML');
 const { type } = require('os');
 const striptags = require('striptags');
 const pdf = require('./pdf');
@@ -15,11 +16,14 @@ page = null;
 marginPage = 50;
 borderThickness = 0.5; // Espessura da borda em pontos 
 borderColor = rgb(0, 0, 0); // Cor da borda
-scaleW = 0.14; // scaleWidht
-scaleH = 0.14; // scaleHeight
+scaleW = 0.15; // scaleWidht 0.14
+scaleH = 0.15; // scaleHeight
 dataHTML = null;
 flagPosId = -1;
 //backup_id = null;
+
+hashNull = 'd84d4707f30e4df0ec60fd3bf9c98283506b8cb8ae496a60ad05c18573329a55';
+hashTemp = '';
 
 // Enum para tipos de texto
 const TextType = {
@@ -27,6 +31,18 @@ const TextType = {
   TITLE: 1,
   REGULAR: 2,
   REGULAR_BOLD: 3
+};
+
+const dataCurrentPresentation = {
+  include_slides: true,
+  include_slide_comment: true
+};
+
+const dataCurrentPresentationWithSlides = {
+  include_slides: true,
+  include_slide_comment: true,
+  include_slide_preview: true,
+  slide_preview_size: '320x180'
 };
 
 const req_next_slide = {
@@ -72,7 +88,7 @@ const simulatedResponse = {
 
 async function printPresentation(req, res) {
   dataHTML = null;
-
+  countSlide = 1;
   pos_id_atual = -1;
 
   titlePrinc = await formatTitulo();
@@ -81,7 +97,7 @@ async function printPresentation(req, res) {
   //Verifica se o arquivo PDF de destino está aberto
   ret = await pdf.verifyPDFisOpen();
 
-  if(ret.status == 'error'){
+  if (ret.status == 'error') {
     res.send(ret);
     return;
   }
@@ -90,21 +106,24 @@ async function printPresentation(req, res) {
 
   await api.closeCurrentPresentation();
 
-  dataHTML = await requisitionHolyricsHTML();
-  await waitDataHTMLNull();
+  await waitWidescreenNull();
+  hashTemp = hashNull;
+
+  // dataHTML = await requisitionHolyricsHTML();
+  // await waitDataHTMLNull();
 
   console.log("PRINT SLIDES");
 
   // Atualiza list_media
   await api.getMediaPlaylist(api.req_local, api.res_local);
 
-  // Redefine intervalo função checkPresentationActive
-  clearInterval(global.ID_intervalChkPresent);
+  // // Redefine intervalo função checkPresentationActive
+  // clearInterval(global.ID_intervalChkPresent);
 
-  global.ID_intervalChkPresent =
-    setInterval(() => {
-      api.checkPresentationActive();
-    }, 150);
+  // global.ID_intervalChkPresent =
+  //   setInterval(() => {
+  //     api.checkPresentationActive();
+  //   }, 150);
 
   flagPosId = 0;
   while (flagPosId < Object.keys(global.list_media).length) {
@@ -115,185 +134,107 @@ async function printPresentation(req, res) {
     if (flagPosId != -1)
       console.log("==> " + id_atual + " | " + name_atual + " | " + type_atual);
 
-    switch (global.list_media[flagPosId].type) {
+    switch (type_atual) {
       case "song":
-        console.log("ENTROU SONG");
+        var presentation = await actionItem(id_atual, name_atual);
 
-        await api.MediaPlaylistAction(id_atual);
+        slides = presentation.data.slides;
 
-        await waitPresentationActive(id_atual);
+        total_slides = presentation.data.total_slides - 1;
 
-        await waitSlideAtual(-1, dataHTML);
-
-        slide_total = global.slide_atual.slide_total;
-        slide_index = global.slide_atual.slide_index;
-
-        console.log("Slide Total: " + slide_total + " | Slide Atual: " + slide_index);
-
-        // Requisição título
-        dataHTML = await requisitionHolyricsHTML();
-        await pdf.organizeTextPDF(dataHTML.map.text, pdf.textParams[TextType.TITLE]);
-
-        for (j = 1; j <= slide_total; j++) {
-          await api.changeSlide(req_next_slide, simulatedResponse);
-          await waitSlideAtual(slide_index, dataHTML);
-          dataHTML = await requisitionHolyricsHTML();
-
-          slide_index = global.slide_atual.slide_index;
-
-          // Verifica Slide errado
-          await verificaSlide(j, slide_index);
-
-          await pdf.organizeTextPDF(j + ". " + dataHTML.map.text, pdf.textParams[TextType.REGULAR]);
+        for (i = 1; i < total_slides; i++) {
+          var text = await verifyVariables(slides[i].text, i, true);
+          await pdf.organizeTextPDF(i + ". " + text, pdf.textParams[TextType.REGULAR]);
         }
-
-        await api.closeCurrentPresentation();
         break;
       case "text":
-        console.log("ENTROU TEXT");
+        var presentation = await actionItem(id_atual, name_atual);
 
-        await api.MediaPlaylistAction(id_atual);
+        slides = presentation.data.slides;
 
-        await waitPresentationActive(id_atual);
+        total_slides = presentation.data.total_slides - 1;
 
-        await waitSlideAtual(-1, dataHTML);
+        for (let i = 0; i < total_slides; i++) {
 
-        slide_total = global.slide_atual.slide_total;
-        slide_index = global.slide_atual.slide_index;
+          var text = await verifyVariables(slides[i].text, i);
 
-        console.log("Slide Total: " + slide_total + " | Slide Atual: " + slide_index);
+          // Remover títulos que estão embutidos nos slides
+          // Ex: LT I - Gloria Patri e o Slide já inclui Gloria Patri
+          var title_split = name_atual.split(' - ');
+          var firstLine = text.split('\n')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-        // Requisição título
-        dataHTML = await requisitionHolyricsHTML();
-        await pdf.organizeTextPDF(dataHTML.map['$system_var_text_title'], pdf.textParams[TextType.TITLE]);
-        await pdf.organizeTextPDF(dataHTML.map.text, pdf.textParams[TextType.REGULAR]);
+          for (let title of title_split) {
+            var normalizedTitle = title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (firstLine === normalizedTitle) {
+              text = text.substring(text.indexOf('\n') + 1);
+              break; // Uma vez que encontramos uma correspondência, podemos sair do loop
+            }
+          }
 
-        for (j = 2; j <= slide_total; j++) {
-          await api.changeSlide(req_next_slide, simulatedResponse);
-          await waitSlideAtual(slide_index, dataHTML);
-          dataHTML = await requisitionHolyricsHTML();
-
-          slide_index = global.slide_atual.slide_index;
-
-          // Verifica Slide errado
-          await verificaSlide(j, slide_index);
-
-          // TODO: Precisa separar linhas de O - 
-          // if (dataHTML.map.text.includes('C -') || dataHTML.map.text.includes('C –')) {
-          //   console.log("bold\n\n\n");
-          //   await pdf.organizeTextPDF(dataHTML.map.text, pdf.textParams[TextType.REGULAR_BOLD]);
-          // } else
-          await pdf.organizeTextPDF(dataHTML.map.text, pdf.textParams[TextType.REGULAR]);
+          await pdf.organizeTextPDF(text, pdf.textParams[TextType.REGULAR]);
         }
-
-        dataHTML = await requisitionHolyricsHTML();
-        await api.closeCurrentPresentation();
         break;
       case "image":
-        console.log("ENTROU IMAGE");
-
-        await api.MediaPlaylistAction(id_atual);
-
-        await waitPresentationActiveImg(id_atual);
-
-        // Título Img
-        await pdf.organizeTextPDF(global.list_media[flagPosId].name, pdf.textParams[TextType.TITLE]);
-
-        dataHTML = await requisitionHolyricsHTML();
-        img64 = dataHTML.map.img64;
-
-        pdf.drawPhoto(img64.split("'")[0], scaleW, scaleH);
-
-        await api.closeCurrentPresentation();
-        break;
       case "announcement":
-        console.log("ENTROU ANNOUNCEMENT");
+        //case "file":
+        if (global.list_media[flagPosId].type === 'file') {
+          const isPPTXFile = global.list_media[flagPosId].name.toLowerCase().endsWith('.pptx');
 
-        dataHTML = await requisitionHolyricsHTML();
-        imgID = 0;
-
-        await api.MediaPlaylistAction(id_atual);
-
-        await waitPresentationActiveAnunc(id_atual, imgID);
-
-        // Título
-        await pdf.organizeTextPDF(global.list_media[flagPosId].name, pdf.textParams[TextType.TITLE]);
-
-        slide_total = global.slide_atual.total_slides;
-
-        for (j = 1; j <= slide_total; j++) {
-          await waitPresentationActiveAnunc(id_atual, imgID);
-
-          dataHTML = await requisitionHolyricsHTML();
-          img64 = dataHTML.map.img64;
-          pdf.drawPhoto(img64.split("'")[0], scaleW, scaleH);
-          imgID = dataHTML.map.img_id;
-
-          if (j != slide_total)
-            await api.changeSlide(req_next_slide, simulatedResponse);
+          if (!isPPTXFile) {
+            console.log("Arquivo não é do tipo .pptx!");
+            await api.closeCurrentPresentation();
+            break;
+          }
         }
 
-        await api.closeCurrentPresentation();
+        var presentation = await actionItem(id_atual, name_atual);
 
-        // Aguarda 1,5s para chamar a próxima presentation
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 1500);
-        });
+        slides = presentation.data.slides;
 
+        total_slides = presentation.data.total_slides;
+
+        await waitWidescreenNotNull();
+
+        for (let i = 0; i < total_slides; i++) {
+          dataWidescreen = await requisitionWidescreen();
+          await pdf.drawPhoto(dataWidescreen.base64.split("'")[0], scaleW, scaleH);
+
+          hashTemp = dataWidescreen.hash;
+          await api.ActionNextorPrevious('next');
+          await waitWidescreenDistinct();
+        }
+
+        await waitWidescreenNull();
+        hashTemp = hashNull;
         break;
       case "verse":
-        await api.MediaPlaylistAction(id_atual);
+        const verse_id = global.list_media[flagPosId].verse_id.split(',');
+        const verses = await bible.searchVerse(verse_id, 'ntlh');
+        const references = await bible.searchReference(verse_id);
 
-        await waitPresentationActiveVerse(id_atual);
+        await pdf.organizeTextPDF(name_atual, pdf.textParams[TextType.TITLE]);
 
-        // Título
-        await pdf.organizeTextPDF(global.list_media[flagPosId].name, pdf.textParams[TextType.TITLE]);
+        for (let i = 0; i < verse_id.length; i++)
+          await pdf.organizeTextPDF(references[i] + ' — ' + verses[i], pdf.textParams[TextType.REGULAR]);
 
-        while (global.pos_id == flagPosId) {
-          //await waitPresentationActiveVerse(id_atual);
-
-          dataHTML = await requisitionHolyricsHTML();
-
-          header = striptags(dataHTML.map.header).split(" - ")[0] + " - ";
-
-          await pdf.organizeTextPDF(header + dataHTML.map.text, pdf.textParams[TextType.REGULAR]);
-
-          await api.changeSlide(req_next_slide, simulatedResponse);
-
-          // Aguarda 1,5s para chamar a próxima presentation
-          await new Promise((resolve) => {
-            setTimeout(() => {
-              resolve();
-            }, 1500);
-          });
-        }
-
-        await api.closeCurrentPresentation();
-
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 3000);
-        });
         break;
       default:
         break;
     }
 
-    await waitDataHTMLNull();
+    await api.closeCurrentPresentation();
+    //await waitDataHTMLNull();
 
     flagPosId++;
   }
 
-  // Volta intervalo original função checkPresentationActive
-  clearInterval(global.ID_intervalChkPresent);
+  // // Volta intervalo original função checkPresentationActive
+  // clearInterval(global.ID_intervalChkPresent);
 
-  global.ID_intervalChkPresent =
-    setInterval(() => {
-      api.checkPresentationActive();
-    }, 1000);
+  // global.ID_intervalChkPresent =
+  //   setInterval(() => {
+  //     api.checkPresentationActive();
+  //   }, 1000);
 
   // Salvando arquivo PDF resultante
   await pdf.saveDocumentPDF();
@@ -316,6 +257,147 @@ async function formatTitulo() {
   const title = "Lista de reprodução - " + playlistInfo.name + " - " + dataFormatada;
 
   return title;
+}
+
+// Exemplo: await getPresentation(id_atual, dataCurrentPresentation)
+async function getPresentation(id, data) {
+  await sleep(700);
+
+  presentation_tmp = await api.getCurrentPresentation(data);
+
+  var tmp = 0;
+  while (presentation_tmp.data === null) {
+    presentation_tmp = await api.getCurrentPresentation(data);
+    console.log("#### Aguardando Presentation: ");
+
+    tmp++;
+    if (tmp == 5) {
+      await api.MediaPlaylistAction(id);
+      await sleep(500);
+      tmp = 0;
+    }
+
+    await sleep(100);
+  }
+
+  return presentation_tmp;
+}
+
+async function actionItem(id, name, data = dataCurrentPresentation) {
+  await api.MediaPlaylistAction(id);
+
+  var presentation = await getPresentation(id, data);
+
+  await pdf.organizeTextPDF(name, pdf.textParams[TextType.TITLE]);
+
+  return presentation;
+}
+
+async function verifyVariables(text, slide_index, isSong = false) {
+  let textTemp = '';
+  if (isSong) // SONG
+    textTemp = text.replace(/(\n\s*|\n\s*\n)/g, function (match) {
+      return match === '\n \n' ? '\n' : ' // ';
+    });
+  else
+    textTemp = text.replace(/(\n\s*|\n\s*\n)/g, function (match) {
+      return match === '\n \n' ? '\n' : ' ';
+    });
+
+  const matches = textTemp.match(/@js{([^}]*)}/g);
+
+  if (matches) {
+    await api.actionGoToIndex(slide_index);
+    await sleep(500);
+    const variables = matches.map(match => match.replace(/@js{|}/g, ''));
+    const replacements = await Promise.all(variables.map(variable => api.getGlobal(variable)));
+
+    for (let j = 0; j < matches.length; j++) {
+      const match = matches[j];
+      const variable = variables[j];
+      const replacement = replacements[j];
+
+      if (replacement.data !== undefined && replacement.data !== null) {
+        textTemp = textTemp.replace(match, replacement.data);
+      }
+    }
+  }
+
+  return textTemp;
+}
+
+function waitWidescreenNotNull() {
+  return new Promise((resolve, reject) => {
+    async function checkAndClearInterval() {
+      try {
+        dataWidescreen = await requisitionWidescreen();
+        if (dataWidescreen.hash !== hashNull) {
+          clearInterval(global.intervalWidescreen);
+          resolve(); // Resolvendo a Promise quando o widescreen não é nulo
+        } else {
+          setTimeout(checkAndClearInterval, 50);
+        }
+      } catch (error) {
+        clearInterval(global.intervalWidescreen);
+        reject(error); // Rejeitando a Promise em caso de erro
+      }
+    }
+
+    global.intervalWidescreen = setTimeout(checkAndClearInterval, 50);
+  });
+}
+
+function waitWidescreenDistinct() {
+  return new Promise((resolve, reject) => {
+    let tentativas = 0;
+
+    async function checkAndClearInterval() {
+      try {
+        dataWidescreen = await requisitionWidescreen();
+        if (dataWidescreen.hash !== hashTemp) {
+          clearInterval(global.intervalWidescreenDistinct);
+          resolve(); // Resolvendo a Promise quando o widescreen não é nulo
+        } else {
+          // Incrementando o número de tentativas
+          tentativas++;
+
+          if (tentativas >= 20) {
+            clearInterval(global.intervalWidescreenDistinct);
+            resolve(); // Resolvendo a Promise após 20 tentativas
+          } else {
+            // Aguardando 50 milissegundos antes da próxima tentativa
+            setTimeout(checkAndClearInterval, 50);
+          }
+        }
+      } catch (error) {
+        clearInterval(global.intervalWidescreenDistinct);
+        reject(error); // Rejeitando a Promise em caso de erro
+      }
+    }
+
+    global.intervalWidescreenDistinct = setTimeout(checkAndClearInterval, 50);
+  });
+}
+
+function waitWidescreenNull() {
+  return new Promise((resolve, reject) => {
+    async function checkAndClearInterval() {
+      try {
+        dataWidescreen = await requisitionWidescreen();
+        if (dataWidescreen.hash === hashNull) {
+          clearInterval(global.intervalNotWidescreen);
+          resolve(); // Resolvendo a Promise quando o widescreen está OK
+        } else {
+          setTimeout(checkAndClearInterval, 50);
+        }
+      } catch (error) {
+        clearInterval(global.intervalNotWidescreen);
+        reject(error); // Rejeitando a Promise em caso de erro
+      }
+    }
+
+    global.intervalNotWidescreen = setTimeout(checkAndClearInterval, 50);
+  });
 }
 
 async function waitPresentationActive(id_atual) {
@@ -404,7 +486,7 @@ async function waitPresentationActiveVerse(id_atual) {
 async function waitDataHTMLNull() {
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
-      console.log("Wait DataHTML TEXT: " + dataHTML.map.text)
+      // console.log("Wait DataHTML TEXT: " + dataHTML.map.text)
       dataHTML = await requisitionHolyricsHTML();
       if (dataHTML.map.text == '') {
         clearInterval(interval);
@@ -503,6 +585,10 @@ async function verificaSlide(j, slide_index) {
       }
     }
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Exportar funções

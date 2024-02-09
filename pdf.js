@@ -73,10 +73,10 @@ async function verifyPDFisOpen() {
         await fs.writeFile(tempDir + nameArchive + '.pdf', pdfBytes);
     } catch (error) {
         console.error('Ocorreu um erro ao escrever o arquivo:', error);
-        return {'status': 'error', error};
+        return { 'status': 'error', error };
     }
 
-    return {'status': 'ok'};
+    return { 'status': 'ok' };
 }
 
 async function createDirectory() {
@@ -125,7 +125,8 @@ async function organizeTextPDF(text, params) {
 
     const lines = striptags(text).split('\n');
     for (let i = 0; i < lines.length; i++) {
-        linha = lines[i];
+        linha = removeUnsupportedChars(lines[i]);
+        //console.log(lines[i] + ' | Linha: ' + linha);
         linhaWidht = params.font.widthOfTextAtSize(linha, params.size);
 
         // Verifica se a linha é apenas espaços em branco
@@ -152,7 +153,6 @@ async function organizeTextPDF(text, params) {
 
                 linha = linha.substring(posBreak + 1);
                 linhaWidht = params.font.widthOfTextAtSize(linha, params.size);
-                posIni = posBreak;
             }
 
             if (linhaWidht > 0) {
@@ -233,6 +233,17 @@ async function drawPhoto(base64JPEG, width, height) {
     });
 
     spaceHeight -= imageSize.height + 2 * textParams[2].size;
+}
+
+function removeUnsupportedChars(text) {
+    const supportedChars = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~áéíóúÁÉÍÓÚãõÃÕçÇáéíóúÁÉÍÓÚãõÃÕâÂêêôÔºªçÇ-+*—–';
+    let newText = '';
+    for (let i = 0; i < text.length; i++) {
+        if (supportedChars.includes(text[i])) {
+            newText += text[i];
+        }
+    }
+    return newText;
 }
 
 async function saveDocumentPDF() {
