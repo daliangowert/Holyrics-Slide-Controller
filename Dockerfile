@@ -1,6 +1,4 @@
-## Comando obrigatório
-## Baixa a imagem do node com versão alpine (versão mais simplificada e leve)
-FROM node:latest
+FROM node:alpine
 
 ## Define o local onde o app vai ficar no disco do container
 WORKDIR /usr/app

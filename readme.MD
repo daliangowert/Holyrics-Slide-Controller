@@ -5,11 +5,15 @@ Para instalar, siga as etapas abaixo:
 
 1. Instalar o Docker Desktop.
 
-1. Execute o arquivo `setup.bat` para instalar o container Docker
+2. Execute o arquivo `setup.bat` para instalar o container Docker
 
-2. Pronto.
+3. Copie e cole o arquivo `.wslconfig` em `%userprofile%` path.
 
-3. Abra o Holyrics e verifique se consegue controlar a apresentação através dos seguintes links:
+4. Reinicie o WSL com `wsl --shutdown`
+
+5. No Docker, defina `Start Docker Desktop when you sign in to your computer`
+
+6. Abra o Holyrics e verifique se consegue controlar a apresentação através dos seguintes links:
 
 - Para o uso do Controller: `http://<IP-do-server>:3000`
 - Para o uso do OBS: `http://<IP-do-server>:3000/obs`
