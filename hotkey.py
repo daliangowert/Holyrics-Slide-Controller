@@ -1,3 +1,7 @@
+#####################
+# DESABILITADO
+#####################
+
 import keyboard
 import requests
 import time

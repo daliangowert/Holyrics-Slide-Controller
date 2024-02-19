@@ -109,21 +109,10 @@ async function printPresentation(req, res) {
   await waitWidescreenNull();
   hashTemp = hashNull;
 
-  // dataHTML = await requisitionHolyricsHTML();
-  // await waitDataHTMLNull();
-
   console.log("PRINT SLIDES");
 
   // Atualiza list_media
   await api.getMediaPlaylist(api.req_local, api.res_local);
-
-  // // Redefine intervalo função checkPresentationActive
-  // clearInterval(global.ID_intervalChkPresent);
-
-  // global.ID_intervalChkPresent =
-  //   setInterval(() => {
-  //     api.checkPresentationActive();
-  //   }, 150);
 
   flagPosId = 0;
   while (flagPosId < Object.keys(global.list_media).length) {
@@ -171,22 +160,13 @@ async function printPresentation(req, res) {
             }
           }
 
+          text = text.replace(/(C\s*-|C\s*:|C\s*—|C\s*-|O\s*-|O\s*:|O\s*—|O\s*-|T\s*-|T\s*:|T\s*—|T\s*-)/g, '\n$1');
+
           await pdf.organizeTextPDF(text, pdf.textParams[TextType.REGULAR]);
         }
         break;
       case "image":
       case "announcement":
-        //case "file":
-        if (global.list_media[flagPosId].type === 'file') {
-          const isPPTXFile = global.list_media[flagPosId].name.toLowerCase().endsWith('.pptx');
-
-          if (!isPPTXFile) {
-            console.log("Arquivo não é do tipo .pptx!");
-            await api.closeCurrentPresentation();
-            break;
-          }
-        }
-
         var presentation = await actionItem(id_atual, name_atual);
 
         slides = presentation.data.slides;
@@ -223,18 +203,9 @@ async function printPresentation(req, res) {
     }
 
     await api.closeCurrentPresentation();
-    //await waitDataHTMLNull();
 
     flagPosId++;
   }
-
-  // // Volta intervalo original função checkPresentationActive
-  // clearInterval(global.ID_intervalChkPresent);
-
-  // global.ID_intervalChkPresent =
-  //   setInterval(() => {
-  //     api.checkPresentationActive();
-  //   }, 1000);
 
   // Salvando arquivo PDF resultante
   await pdf.saveDocumentPDF();
@@ -261,17 +232,17 @@ async function formatTitulo() {
 
 // Exemplo: await getPresentation(id_atual, dataCurrentPresentation)
 async function getPresentation(id, data) {
-  await sleep(1300);
+  await sleep(1500);
 
   presentation_tmp = await api.getCurrentPresentation(data);
 
   var tmp = 0;
-  while (presentation_tmp.data === null) {
+  while (presentation_tmp.data === null || presentation_tmp.data.id != id) {
     presentation_tmp = await api.getCurrentPresentation(data);
     console.log("#### Aguardando Presentation: ");
 
     tmp++;
-    if (tmp == 5) {
+    if (tmp == 10) {
       await api.MediaPlaylistAction(id);
       await sleep(500);
       tmp = 0;

@@ -53,7 +53,7 @@ app.listen(3000, () => {
   console.log('Servidor iniciado na porta 3000');
 
   // Inicia o script Python para hotkey
-  const pythonProcess = spawn('python', ['hotkey.py']);
+  //const pythonProcess = spawn('python', ['hotkey.py']);
 
   global.ID_intervalChkPresent =
     setInterval(() => {
