@@ -1,33 +1,18 @@
 @echo off
+setlocal
 
-REM Verificar se o OpenJS.NodeJS está instalado
-winget show OpenJS.NodeJS >nul 2>&1
-if %errorlevel% equ 0 (
-    echo OpenJS.NodeJS ja esta instalado.
-) else (
-    echo OpenJS.NodeJS nao esta instalado. Instalando...
-    winget install -e --id OpenJS.NodeJS
-)
+REM Solicitar ao usuário o token
+set /p TOKEN=Por favor, insira o token API do Holyrics: 
 
-@REM Instalar dependencias Node
-echo Instalando dependencias Node...
-call npm ci
+REM Solicitar ao usuário o caminho da pasta local
+set /p PASTA_LOCAL=Por favor, insira o caminho onde as apresentacoes serao salvas: 
 
-@REM Instalar node-windows
-call npm install -g node-windows
-call npm link node-windows
+REM Construir a imagem Docker com o token fornecido
+docker build --build-arg TOKEN=%TOKEN% -t holyrics-controller .
 
-REM Verifica se o serviço existe
-set SERVICE_NAME=Holyrics_Controller
-sc query %SERVICE_NAME% > nul 2>&1
-if %errorlevel% equ 0 (
-    echo O servico %SERVICE_NAME% ja existe.
-) else (
-    echo O servico %SERVICE_NAME% nao existe. Executando o comando 'node createService'...
-    node createService
-)
-echo Servico p/ Windows criado!
-echo Script executado!
+REM Executar o contêiner Docker com o caminho da pasta local fornecido
+docker run -d -p 3000:3000 -v "%PASTA_LOCAL%:/usr/app/data" --restart=always holyrics-controller
 
-echo.
-pause
+@echo "Instalacao realizada com sucesso!"
+
+endlocal

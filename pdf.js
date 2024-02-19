@@ -2,7 +2,6 @@ const { PDFDocument, rgb, degrees, StandardFonts } = require('pdf-lib');
 const fs = require('fs').promises;
 const striptags = require('striptags');
 const os = require('os');
-const { exec } = require('child_process');
 const config = require('./db').config; // config lida do TXT
 
 pdfDoc = null;
@@ -71,7 +70,7 @@ async function verifyPDFisOpen() {
 
     try {
         // Salva o PDF em um arquivo
-        await fs.writeFile(config.folderPresentation + '\\' + nameArchive + '.pdf', pdfBytes);
+        await fs.writeFile(config.folderPresentation + nameArchive + '.pdf', pdfBytes);
     } catch (error) {
         console.error('Ocorreu um erro ao escrever o arquivo:', error);
         return { 'status': 'error', error };
@@ -255,9 +254,7 @@ async function saveDocumentPDF() {
     //tempDir = await createDirectory();
 
     // Salva o PDF em um arquivo
-    await fs.writeFile(config.folderPresentation + '\\' + nameArchive + '.pdf', pdfBytes);
-
-    exec(`start "" "${config.folderPresentation}"`);
+    await fs.writeFile(config.folderPresentation + nameArchive + '.pdf', pdfBytes);
 }
 
 // Exportar funções

@@ -365,7 +365,7 @@ async function createPowerPoint() {
     });
 
     var schedule = await api.getCurrentSchedule();
-    pathPPT = config.folderPresentation + '\\' + schedule.data[0].name + ' - ' + schedule.data[0].datetime.split(' ')[0] +'.pptx';
+    pathPPT = config.folderPresentation + schedule.data[0].name + ' - ' + schedule.data[0].datetime.split(' ')[0] +'.pptx';
 
     await new Promise((resolve, reject) => {
       let stream = fs.createWriteStream(pathPPT);

@@ -9,7 +9,7 @@ WORKDIR /usr/app
 ARG IP=host.docker.internal
 ARG PORT=8091
 ARG TOKEN
-ARG FOLDER_PRESENTATION
+ARG FOLDER_PRESENTATION=/usr/app/data/
 
 # Cria o arquivo config.txt com as informações fornecidas pelo usuário
 RUN echo "IP=${IP}" >> /usr/app/config.txt \
