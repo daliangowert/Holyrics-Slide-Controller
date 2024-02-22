@@ -5,6 +5,7 @@ const { createDirectory } = require('./pdf.js');
 const fs = require('fs');
 const path = require('path');
 const officegen = require('officegen');
+const { Console } = require('console');
 
 // --------- Variáveis --------- 
 dataWidescreen = null;
@@ -53,23 +54,21 @@ async function converterMediaPlaylistFromPPT(req, res) {
     if (flagPosId != -1)
       console.log("==> " + id_atual + " | " + name_atual + " | " + type_atual);
 
-    switch (global.list_media[flagPosId].type) {
+    switch (type_atual) {
       case "song":
       case "text":
-        await api.MediaPlaylistAction(id_atual);
+      case "image":
+      case "announcement":
+        var presentation = await actionItem(id_atual);
 
         await waitWidescreenNotNull();
 
-        await waitGetCurrentPresentation();
-        var presentation = await api.getCurrentPresentation();
-
-        while(presentation.data === null){
-          presentation = await api.getCurrentPresentation();
-          console.log("#### Aguardando Presentation: ");
-          await sleep(100);
-        }
+        // await waitGetCurrentPresentation();  -- APAGAR
 
         total_slides = presentation.data.total_slides;
+
+        if (type_atual === "image" || type_atual === "announcement")
+          total_slides++;
 
         for (i = 1; i < total_slides; i++) {
           dataWidescreen = await requisitionWidescreen();
@@ -83,74 +82,16 @@ async function converterMediaPlaylistFromPPT(req, res) {
           await waitWidescreenDistinct();
         }
 
-        await api.closeCurrentPresentation();
-        await waitWidescreenNull();
-        hashTemp = hashNull;
-
-        break;
-      case "image":
-      case "announcement":
-      case "file":
-        if (global.list_media[flagPosId].type === 'file') {
-          const isPPTXFile = global.list_media[flagPosId].name.toLowerCase().endsWith('.pptx');
-
-          if (!isPPTXFile) {
-            console.log("Arquivo não é do tipo .pptx!");
-            await api.closeCurrentPresentation();
-            await waitWidescreenNull();
-            hashTemp = hashNull;
-            break;
-          }
-        }
-
-        await api.MediaPlaylistAction(id_atual);
-
-        await waitWidescreenNotNull();
-
-        await waitGetCurrentPresentation();
-        var presentation = await api.getCurrentPresentation();
-
-        while(presentation.data === null){
-          presentation = await api.getCurrentPresentation();
-          console.log("#### Aguardando Presentation: ");
-          await sleep(100); 
-        }
-
-        total_slides = presentation.data.total_slides;
-
-        for (i = 1; i <= total_slides; i++) {
-          dataWidescreen = await requisitionWidescreen();
-
-          await saveWidescreen(dataWidescreen.base64, countSlide);
-
-          hashTemp = dataWidescreen.hash;
-          countSlide++;
-
-          await api.ActionNextorPrevious('next');
-          await waitWidescreenDistinct();
-        }
-
-        await api.closeCurrentPresentation();
-        await waitWidescreenNull();
-        hashTemp = hashNull;
-
         break;
       case "verse":
-        await api.MediaPlaylistAction(id_atual);
-
-        await waitWidescreenNotNull();
-
-        await waitGetCurrentPresentation();
-        var presentation = await api.getCurrentPresentation();
-
-        while(presentation.data === null){
-          presentation = await api.getCurrentPresentation();
-          console.log("#### Aguardando Presentation: ");
-          await sleep(100); 
-        }
-
         const verseId = global.list_media[flagPosId].verse_id.split(',');
         const lastId = verseId[verseId.length - 1];
+
+        var presentation = await actionItem(id_atual, verseId[0]);
+
+        console.log(presentation);
+
+        await waitWidescreenNotNull();
 
         while (presentation.data.id !== lastId) {
           dataWidescreen = await requisitionWidescreen();
@@ -165,11 +106,7 @@ async function converterMediaPlaylistFromPPT(req, res) {
           presentation = await api.getCurrentPresentation();
         }
 
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 1500);
-        });
+        await sleep(1500);
 
         while (global.pos_id == flagPosId) {
           dataWidescreen = await requisitionWidescreen();
@@ -182,35 +119,82 @@ async function converterMediaPlaylistFromPPT(req, res) {
           await api.waitForVerseChange(simulatedResponse, 'next');
 
           // Aguarda 1,5s para chamar a próxima presentation
-          await new Promise((resolve) => {
-            setTimeout(() => {
-              resolve();
-            }, 1500);
-          });
+          await sleep(1500);
         }
-
-        await api.closeCurrentPresentation();
-
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 3000);
-        });
-
-        await waitWidescreenNull();
-        hashTemp = hashNull;
-
+        
         break;
       default:
         break;
     }
+
+    await api.closeCurrentPresentation();
+    await waitWidescreenNull();
+    hashTemp = hashNull;
 
     flagPosId++;
   }
 
   pathPPT = await createPowerPoint();
 
-  res.send({ status: "ok" , path: pathPPT});
+  res.send({ status: "ok", path: pathPPT });
+}
+
+// Exemplo: await getPresentation(id_atual, dataCurrentPresentation)
+async function getPresentation(id) {
+  await sleep(1500);
+
+  presentation_tmp = await api.getCurrentPresentation();
+
+  var tmp = 0;
+  while (presentation_tmp.data === null || presentation_tmp.data.id != id) {
+    presentation_tmp = await api.getCurrentPresentation();
+    console.log("#### Aguardando Presentation: ");
+
+    tmp++;
+    if (tmp == 10) {
+      await api.MediaPlaylistAction(id);
+      await sleep(500);
+      tmp = 0;
+    }
+
+    await sleep(100);
+  }
+
+  return presentation_tmp;
+}
+
+async function getPresentationForVerse(id, verse_inicial) {
+  await sleep(1500);
+
+  presentation_tmp = await api.getCurrentPresentation();
+
+  var tmp = 0;
+  while (presentation_tmp.data === null || presentation_tmp.data.id != verse_inicial) {
+    presentation_tmp = await api.getCurrentPresentation();
+    console.log("#### Aguardando Presentation: ");
+
+    tmp++;
+    if (tmp == 10) {
+      await api.MediaPlaylistAction(id);
+      await sleep(500);
+      tmp = 0;
+    }
+
+    await sleep(100);
+  }
+
+  return presentation_tmp;
+}
+
+async function actionItem(id, isVerse = false) {
+  await api.MediaPlaylistAction(id);
+
+  if (isVerse)
+    var presentation = await getPresentationForVerse(id, isVerse);
+  else
+    var presentation = await getPresentation(id);
+
+  return presentation;
 }
 
 function waitWidescreenNull() {
@@ -365,8 +349,9 @@ async function createPowerPoint() {
     });
 
     var schedule = await api.getCurrentSchedule();
-    pathPPT = config.folderPresentation + schedule.data[0].name + ' - ' + schedule.data[0].datetime.split(' ')[0] +'.pptx';
+    pathPPT = config.folderPresentation + schedule.data[0].name + ' - ' + schedule.data[0].datetime.split(' ')[0] + '.pptx';
 
+    console.log(pathPPT);
     await new Promise((resolve, reject) => {
       let stream = fs.createWriteStream(pathPPT);
       pptx.generate(stream, { finalize: (written) => resolve() });
@@ -391,7 +376,7 @@ async function clearFolder(path) {
   } catch (error) {
     console.error('Erro ao excluir a pasta:', error);
   }
-  
+
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive: true });
   }

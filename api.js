@@ -16,7 +16,7 @@ global.pos_id = -1;
 global.isPrevious = false;
 global.ID_intervalChkPresent;
 global.flag_verse_unico = false;
-global.tipos_permitidos = ['song', 'text', 'image', 'announcement', 'verse', 'video'];
+global.tipos_permitidos = ['song', 'text', 'image', 'announcement', 'verse', 'video']; // Implementar p/ audio, api e script
 
 if (!config) {
   console.log("#########");
@@ -415,6 +415,8 @@ async function checkPresentationActive() {
 
       // Verifica se apresentação atual é do tipo VERSE
       if (type_current == 'verse') {
+        //TODO: Refazer verificação verse a partir da atualização 2.21.0 do Holyrics
+
         dateHTML = await requisitionHolyricsHTML();
         header = striptags(dateHTML.map.header);
         headerPrefix = header.substring(0, header.indexOf('.')); // Extrai o prefixo do cabeçalho
@@ -451,6 +453,7 @@ async function checkPresentationActive() {
             id_current = list_media[pos_id].id;
           }
         }
+       
       } else if (type_current == 'announcement' && response.data.data.total_slides > 1) {
         // Bug: não consigo tratar o tipo Anúncio(lista) ou Anúncio(todos)
         id_current = null;

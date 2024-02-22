@@ -16,6 +16,8 @@ let timeoutId;
 
 var config;
 
+var isText = false;
+
 function init() {
     // Pega as configs para conversação com o Holyrics
     $.ajax({
@@ -82,6 +84,66 @@ function update() {
     });
 }
 
+function requireTextJson() {
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: 'GET',
+            url: `http://${config.ip}:7575/stage-view/text.json`,
+            data: {
+                html_type: -1,
+                css_hash: cssHash
+            },
+            cache: false,
+            async: true,
+            dataType: 'json',
+            timeout: 2000,
+            success: function (response) {
+                try {
+                    if (response.reload === "_true") {
+                        location.reload();
+                    }
+                } catch (err) {
+                    //ignore
+                }
+                try {
+                    resolve(response); // Resolvendo a promessa com a resposta
+                } catch (err) {
+                    reject(err); // Rejeitando a promessa com o erro
+                }
+            },
+            error: function (xmlhttprequest, textstatus, message) {
+                reject(message); // Rejeitando a promessa com a mensagem de erro
+            }
+        });
+    });
+}
+
+function setItem(data) {
+    // Criar uma instância do objeto XMLHttpRequest
+    var xhr = new XMLHttpRequest();
+
+    // Configurar a requisição
+    xhr.open('POST', '/setItem', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    // Definir a função a ser executada quando a requisição for concluída
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+        } else {
+            // Erro na requisição
+            console.error('Erro na requisição:', xhr.statusText);
+        }
+    };
+
+    // Definir a função a ser executada em caso de erro na requisição
+    xhr.onerror = function () {
+        console.error('Erro de rede');
+    };
+
+    // Enviar a requisição com os dados convertidos para JSON
+    xhr.send(JSON.stringify(data));
+}
+
 function callbackJson(json) {
     try {
         if (json == 'none') {
@@ -98,7 +160,6 @@ function callbackJson(json) {
             return;
         }
         error_count = 0;
-        //console.log(json);
         updateList(json.map);
     } catch (e) {
         //ignore
@@ -109,7 +170,7 @@ function callbackJson(json) {
     }
 }
 
-function updateList(json) {
+async function updateList(json) {
     var json_str = JSON.stringify(json);
     if (current_json !== null && json_str == current_json) {
         if (tmp == false && tmp2 == false) {
@@ -135,8 +196,85 @@ function updateList(json) {
     // tmp2 = false;
     // console.log("DEPOIS_IGUAL");
     current_json = json_str;
+
+    var textJson = await requireTextJson();
+    if (textJson.map.type == 'TEXT') {
+        json.items = verifyItems(json.items);
+        isText = true;
+    }
+    else
+        isText = false;
+
     updateItems(json);
     updateSelectedIndex(json);
+}
+
+function verifyItems(items) {
+    var items = items.map(function (item) {
+        return item.trim();
+    });
+
+    console.log(items);
+
+    for (i = 0; i < items.length; i++) {
+        var item = items[i];
+        var itemSplit = item.split('\n');
+
+        // if(item.length > 100){
+
+        if (itemSplit.length == 1) // dividir
+        {
+            // não tem \n
+            var partes = dividirTexto(item, 140);
+            items.splice(i, 1, ...partes);
+            i += partes.length - 1;
+        }
+        else {
+            console.log(itemSplit[1].length);
+            var partes;
+            partes = dividirTexto(item, 100);
+            
+            items.splice(i, 1, ...partes);
+            i += partes.length - 1;
+        }
+        // }       
+    }
+
+    items = items.filter(function(item) {
+        return item.trim() !== "";
+    });
+
+    console.log(items);
+
+    return items;
+}
+
+function dividirTexto(texto, tamanhoMax = 80) {
+    let partes = [];
+    let inicio = 0;
+    let fim = tamanhoMax;
+
+    while (fim < texto.length) {
+        let posicao = fim;
+        while (posicao > inicio && !".;,?".includes(texto[posicao])) {
+            posicao--;
+        }
+        if (posicao === inicio) {
+            posicao = fim;
+            while(!" ".includes(texto[posicao])){
+                posicao--;
+            }
+            posicao++;
+        } else {
+            posicao++;
+        }
+        partes.push(texto.slice(inicio, posicao));
+        inicio = posicao;
+        fim = inicio + tamanhoMax;
+    }
+    partes.push(texto.slice(inicio));
+
+    return partes;
 }
 
 // function analisajson()
@@ -172,6 +310,7 @@ function updateItems(json) {
         }
     }
     items = json.items;
+
     //console.log("diferente");
     //tmp = true;
     selected_index = -2;
@@ -236,6 +375,8 @@ function refreshSelectedIndex() {
         i++;
         colElem = document.getElementById("td_index_" + i);
     }
+
+    setItem({ active: isText, item: items[selected_index] });
 }
 
 function textAreaKeyPressed(evt) {

@@ -11,6 +11,7 @@ const { printPresentation } = require('./print');
 const { converterMediaPlaylistFromPPT } = require('./presentation');
 const { getDmxValues } = require('./artnet');
 const config = require('./db').config; // config lida do TXT
+var itemText = {active: false, item: ''};
 
 //Roteamento
 //router.post('/api/GetMediaPlaylist/:ip/:token', getMediaPlaylist);
@@ -37,6 +38,16 @@ app.get('/obs', (req, res) => {
 app.get('/config', (req, res) => {
   // Retornar a variável na resposta
   res.json(config);
+});
+
+app.post('/setItem', (req, res) => {
+  itemText = req.body;
+
+  res.json({status: 'ok'});
+});
+
+app.get('/getItem', (req, res) => {
+  res.json(itemText);
 });
 
 app.get('/presentation_active', (req, res) => {

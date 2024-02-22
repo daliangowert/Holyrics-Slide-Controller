@@ -54,6 +54,8 @@ var config;
 //transition
 var transition_on = false;
 
+var jsonItem = { active: false, item: '' };
+
 function bodyOnload() {
     // Pega as configs para conversação com o Holyrics
     $.ajax({
@@ -112,6 +114,41 @@ function refresh() {
     });
 }
 
+function getItem() {
+    $.ajax({
+        type: 'GET',
+        url: `/getItem`,
+        cache: false,
+        async: false,
+        dataType: 'json',
+        timeout: 2000,
+        success: function (response) {
+            try {
+                if (response.reload === "_true") {
+                    location.reload();
+                }
+            } catch (err) {
+                //ignore
+            }
+            try {
+                if (response.active && response.item != jsonItem.item) {
+                    console.log(response)
+                    jsonItem = response;
+                    fields['text'] = response.item + "<span style='visibility:hidden;display:none' id='text-force-update_0'></span>";
+                    setupFields();
+                    update();
+                }
+            } catch (err) {
+                //ignore
+            }
+        },
+        error: function (xmlhttprequest, textstatus, message) {
+            console.log(message);
+        }
+    });
+}
+
+
 var current_json = null;
 
 function fillAndUpdate(json) {
@@ -161,6 +198,7 @@ function fillAndUpdate(json) {
         //ignore
     } finally {
         setTimeout('refresh()', ((json == "ajax-error") ? 2000 : 100));
+        if (json.type == "TEXT") setTimeout('getItem()', 100);
     }
 }
 
@@ -200,7 +238,9 @@ function fillFields(json) {
             }
         }
     }
-    setupFields();
+
+    if (json.type != 'TEXT')
+        setupFields();
 }
 
 function setupFields() {
