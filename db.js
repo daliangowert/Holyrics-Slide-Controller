@@ -17,7 +17,7 @@ function lerConfig() {
     const matchToken = conteudo.match(/token=(.*)/);
     const matchfolderPresentation = conteudo.match(/folder_presentation=(.*)/);
 
-    if (matchIP && matchToken && matchPort) {
+    if (matchIP && matchToken && matchPort && matchfolderPresentation) {
         config = {
             ip: matchIP[1],         // Ip do Holyrics
             port: matchPort[1],     // Port API

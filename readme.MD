@@ -13,7 +13,10 @@ Para instalar, siga as etapas abaixo:
 
 5. No Docker, defina `Start Docker Desktop when you sign in to your computer`
 
-6. Abra o Holyrics e verifique se consegue controlar a apresentação através dos seguintes links:
+6. Também no Docker, selecione o container que está executando o Holyrics-slide-controller. Acesse a guia files e na localização:
+`usr/app/obs/fundos` adicione os fundos para as lower Thirds.
+
+7. Abra o Holyrics e verifique se consegue controlar a apresentação através dos seguintes links:
 
 - Para o uso do Controller: `http://<IP-do-server>:3000`
 - Para o uso do OBS: `http://<IP-do-server>:3000/obs`

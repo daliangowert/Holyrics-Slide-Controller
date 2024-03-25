@@ -2,7 +2,7 @@ var Service = require('node-windows').Service;
 
 // Create a new service object
 var svc = new Service({
-  name:'Holyrics_Controller',
+  name:'Holyrics_Controller_NEW',
   description: 'Controlador de slides do Holyrics.',
   script: 'server.js',
   nodeOptions: [

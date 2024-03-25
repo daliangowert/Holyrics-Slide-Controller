@@ -46,7 +46,7 @@ async function requisitionHolyricsHTML(isFront = true, html_type = 2) {
       path: '/stage-view/widescreen.jpg',
       method: 'GET'
     };
-  
+
     try {
       const responseData = await new Promise((resolve, reject) => {
         const req = http.get(options, res => {
