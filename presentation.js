@@ -89,22 +89,21 @@ async function converterMediaPlaylistFromPPT(req, res) {
 
         var presentation = await actionItem(id_atual, verseId[0]);
 
-        console.log(presentation);
-
         await waitWidescreenNotNull();
 
-        while (presentation.data.id !== lastId) {
-          dataWidescreen = await requisitionWidescreen();
+        if (presentation)
+          while (presentation.data.id !== lastId) {
+            dataWidescreen = await requisitionWidescreen();
 
-          await saveWidescreen(dataWidescreen.base64, countSlide);
+            await saveWidescreen(dataWidescreen.base64, countSlide);
 
-          hashTemp = dataWidescreen.hash;
-          countSlide++;
+            hashTemp = dataWidescreen.hash;
+            countSlide++;
 
-          await api.ActionNextorPrevious('next');
-          await waitWidescreenDistinct();
-          presentation = await api.getCurrentPresentation();
-        }
+            await api.ActionNextorPrevious('next');
+            await waitWidescreenDistinct();
+            presentation = await api.getCurrentPresentation();
+          }
 
         await sleep(1500);
 
@@ -121,7 +120,7 @@ async function converterMediaPlaylistFromPPT(req, res) {
           // Aguarda 1,5s para chamar a próxima presentation
           await sleep(1500);
         }
-        
+
         break;
       default:
         break;
