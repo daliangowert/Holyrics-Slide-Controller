@@ -16,7 +16,8 @@ global.pos_id = -1;
 global.isPrevious = false;
 global.ID_intervalChkPresent;
 global.flag_verse_unico = false;
-global.tipos_permitidos = ['song', 'text', 'image', 'announcement', 'verse', 'video']; // Implementar p/ audio, api e script
+global.tipos_permitidos = ['song', 'text', 'image', 'announcement', 'verse', 'video'];
+global.tipos_somente_exec = ['audio', 'api', 'script'];
 
 if (!config) {
   console.log("#########");
@@ -55,6 +56,9 @@ function generate_url(content) {
   return `http://${config.ip}:${config.port}/api/` + content + `?token=${config.token}`;
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // GetMediaPlaylist
 async function getMediaPlaylist() {
@@ -296,6 +300,7 @@ async function nextID() {
   }
   else {
     pos_id_ant = pos_id;
+    clearInterval(global.ID_intervalChkPresent);
     do {
       pos_id++;
       id_current = list_media[pos_id].id;
@@ -305,6 +310,12 @@ async function nextID() {
       // Verifica se é um PowerPoint
       if (type_current == 'file' && list_media[pos_id].name.endsWith('.pptx'))
         break;
+
+      if (tipos_somente_exec.includes(type_current)) {
+        await MediaPlaylistAction(id_current);
+        await sleep(300);
+      }
+
     }
     while (!tipos_permitidos.includes(type_current) && (pos_id + 1) < Object.keys(list_media).length);
 
@@ -329,6 +340,12 @@ async function nextID() {
     console.log("Chamando próximo ID!");
     console.log(id_current)
     await MediaPlaylistAction(id_current);
+
+    //Cria novamente a chamada de checkPresentation
+    global.ID_intervalChkPresent =
+      setInterval(() => {
+        checkPresentationActive();
+      }, 1000);
   }
 }
 
@@ -344,6 +361,7 @@ async function previousID() {
     console.log("Nenhuma apresentação armazenada");
   }
   else {
+    clearInterval(global.ID_intervalChkPresent);
     do {
       pos_id--;
       id_current = list_media[pos_id].id;
@@ -353,6 +371,11 @@ async function previousID() {
       // Verifica se é um PowerPoint
       if (type_current == 'file' && list_media[pos_id].name.endsWith('.pptx'))
         break;
+
+      if (tipos_somente_exec.includes(type_current)) {
+        await MediaPlaylistAction(id_current);
+        await sleep(300);
+      }
     } while (!tipos_permitidos.includes(type_current) && pos_id > 0);
 
     // Caso chegue ao começo da lista e não encontre outra presentation
@@ -372,6 +395,12 @@ async function previousID() {
     // Iniciar apresentação do id anterior
     console.log("Chamando ID anterior!");
     await MediaPlaylistAction(id_current);
+
+    //Cria novamente a chamada de checkPresentation
+    global.ID_intervalChkPresent =
+      setInterval(() => {
+        checkPresentationActive();
+      }, 1000);
   }
 }
 
@@ -453,7 +482,7 @@ async function checkPresentationActive() {
             id_current = list_media[pos_id].id;
           }
         }
-       
+
       } else if (type_current == 'announcement' && response.data.data.total_slides > 1) {
         // Bug: não consigo tratar o tipo Anúncio(lista) ou Anúncio(todos)
         id_current = null;
@@ -602,7 +631,7 @@ async function getPlaylistInfo() {
 }
 
 //GetCurrentSchedule
-async function getCurrentSchedule(){
+async function getCurrentSchedule() {
   try {
     const url = generate_url('GetCurrentSchedule');
 
@@ -618,8 +647,7 @@ async function getCurrentSchedule(){
   }
 }
 
-async function getGlobal(variavel)
-{
+async function getGlobal(variavel) {
   try {
     const url = generate_url('GetGlobal');
     const data = {
@@ -641,7 +669,7 @@ async function getGlobal(variavel)
 }
 
 //actionGoToIndex
-async function actionGoToIndex(index){
+async function actionGoToIndex(index) {
   try {
     const url = generate_url('ActionGoToIndex');
     const data = {
