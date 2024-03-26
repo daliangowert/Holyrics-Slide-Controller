@@ -40,3 +40,5 @@ Para instalar, siga as etapas abaixo:
 
 - Para o uso do Controller: `http://<IP-do-server>:3000`
 - Para o uso do OBS: `http://<IP-do-server>:3000/obs`
+
+7. Selecione os fundos desejados para biblia, texto e letra de música e coloque no caminho `/obs/fundos`
